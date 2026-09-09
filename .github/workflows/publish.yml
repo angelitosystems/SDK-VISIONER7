@@ -77,14 +77,13 @@ jobs:
       # ----------------------------------------
       - name: Update package version
         run: |
-          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          VERSION="${{ inputs.version }}"
+          npm version "$VERSION" \
+            --no-git-tag-version \
+            --allow-same-version
 
-          if [[ "$CURRENT_VERSION" == "${{ inputs.version }}" ]]; then
-            echo "Package is already at version $CURRENT_VERSION"
-          else
-            npm version "${{ inputs.version }}" \
-              --no-git-tag-version
-          fi
+          echo "Package version: $(node -p "require('./package.json').version")"
+          echo "Lockfile version: $(node -p "require('./package-lock.json').version")"
 
       # ----------------------------------------
       # 8. Build
