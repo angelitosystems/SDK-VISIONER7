@@ -7,8 +7,8 @@ import {
   DEFAULT_BUSINESS_TOKEN,
   DEFAULT_TIMEOUT,
   SUNAT_MODULE_OPTIONS,
-} from './constants';
-import { SunatApiException } from './exceptions/sunat-api.exception';
+} from './constants.js';
+import { SunatApiException } from './exceptions/sunat-api.exception.js';
 import {
   ConsultarDniResponse,
   ConsultarRucResponse,
@@ -23,7 +23,7 @@ import {
   TipoCambioRequest,
   TipoCambioResponse,
   TipoConsultaLocal,
-} from './interfaces';
+} from './interfaces/index.js';
 
 @Injectable()
 export class SunatService {

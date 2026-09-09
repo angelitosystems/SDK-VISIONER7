@@ -1,11 +1,11 @@
 import { HttpModule } from '@nestjs/axios';
 import { DynamicModule, Module, Provider } from '@nestjs/common';
-import { SUNAT_MODULE_OPTIONS } from './constants';
+import { SUNAT_MODULE_OPTIONS } from './constants.js';
 import {
   SunatModuleAsyncOptions,
   SunatModuleOptions,
-} from './interfaces';
-import { SunatService } from './sunat.service';
+} from './interfaces/index.js';
+import { SunatService } from './sunat.service.js';
 
 @Module({})
 export class SunatModule {
