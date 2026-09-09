@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Documentación de @angelitosystems/sdk-visioner7, una capa de integración tipada para NestJS y TypeScript.">
+  <title>SDK Visioner7 · Documentación</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#inicio" aria-label="SDK Visioner7 inicio">
+      <span class="brand-mark">V7</span>
+      <span>SDK Visioner7</span>
+    </a>
+    <nav class="topnav" aria-label="Navegación principal">
+      <a href="#instalacion">Instalación</a>
+      <a href="#configuracion">Configuración</a>
+      <a href="#referencia">Referencia</a>
+      <a class="nav-link" href="https://github.com/angelitosystems/SDK-VISIONER7" target="_blank" rel="noreferrer">GitHub<span class="ext" aria-hidden="true">↗</span></a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" id="inicio">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="status-dot"></span>NestJS + TypeScript · v1.0.1</p>
+        <h1>Una capa tipada entre tu backend y el servicio de <span class="accent">Visioner7</span></h1>
+        <p class="hero-text">SDK de integración independiente que organiza las consultas SUNAT, la emisión de comprobantes y las guías de remisión en interfaces TypeScript listas para NestJS, sin que tu aplicación tenga que hablar HTTP directamente con el proveedor.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#instalacion">Empezar ahora</a>
+          <a class="button button-secondary" href="https://www.npmjs.com/package/@angelitosystems/sdk-visioner7" target="_blank" rel="noreferrer">Ver en npm<span class="ext" aria-hidden="true">↗</span></a>
+        </div>
+        <div class="install-line"><span>$</span> npm install @angelitosystems/sdk-visioner7 <button class="copy-button" data-copy="npm install @angelitosystems/sdk-visioner7" aria-label="Copiar comando">Copiar</button></div>
+      </div>
+      <div class="hero-orbit" aria-hidden="true">
+        <div class="orbit orbit-one"></div>
+        <div class="orbit orbit-two"></div>
+        <div class="orbit-core"><span>V7</span><small>SDK</small></div>
+        <span class="orbit-label label-one"><i></i>RUC / DNI</span>
+        <span class="orbit-label label-two"><i></i>Guías</span>
+        <span class="orbit-label label-three"><i></i>CPE</span>
+      </div>
+    </section>
+
+    <section class="signal-strip" aria-label="Resumen del paquete">
+      <div><strong>11 operaciones</strong><span>consultas, guías y comprobantes</span></div>
+      <div><strong>NestJS nativo</strong><span>forRoot y forRootAsync</span></div>
+      <div><strong>Errores centralizados</strong><span>SunatApiException</span></div>
+      <div><strong>MIT sugerida</strong><span>uso privado o distribuido</span></div>
+    </section>
+
+    <div class="docs-layout">
+      <aside class="side-nav" aria-label="Tabla de contenidos">
+        <nav class="nav-group">
+          <p class="nav-group-title">Primeros pasos</p>
+          <a href="#instalacion">Instalación</a>
+          <a href="#requisitos">Requisitos y dependencias</a>
+        </nav>
+        <nav class="nav-group">
+          <p class="nav-group-title">Configuración</p>
+          <a href="#configuracion">Registrar el módulo</a>
+          <a href="#variables-entorno">Variables de entorno</a>
+        </nav>
+        <nav class="nav-group">
+          <p class="nav-group-title">Uso</p>
+          <a href="#uso">Inyectar el servicio</a>
+        </nav>
+        <nav class="nav-group">
+          <p class="nav-group-title">Referencia de API</p>
+          <a href="#referencia"><span class="chip consultas"><i></i>Consultas</span></a>
+          <a href="#guias-remision"><span class="chip guias"><i></i>Guías de remisión</span></a>
+          <a href="#comprobantes"><span class="chip comprobantes"><i></i>Comprobantes</span></a>
+        </nav>
+        <nav class="nav-group">
+          <p class="nav-group-title">Operación</p>
+          <a href="#errores">Manejo de errores</a>
+          <a href="#arquitectura">Arquitectura recomendada</a>
+        </nav>
+        <nav class="nav-group">
+          <p class="nav-group-title">Seguridad</p>
+          <a href="#seguridad">Buenas prácticas</a>
+          <a href="#proteccion-datos">Protección de datos</a>
+        </nav>
+        <nav class="nav-group">
+          <p class="nav-group-title">Proyecto</p>
+          <a href="#estructura">Estructura de carpetas</a>
+          <a href="#naturaleza">Naturaleza y licencia</a>
+        </nav>
+      </aside>
+
+      <div class="content">
+
+        <section class="doc-section" id="instalacion">
+          <p class="section-kicker">Primeros pasos</p>
+          <h2>Instala la capa de integración</h2>
+          <p>El SDK se distribuye como paquete scoped y depende de <code>@nestjs/axios</code> para realizar las peticiones HTTP hacia el servicio contratado.</p>
+          <div class="code-block">
+            <div class="code-head"><span>Terminal</span><button class="copy-button" data-copy="npm install @angelitosystems/sdk-visioner7
+npm install @nestjs/axios axios reflect-metadata rxjs">Copiar</button></div>
+            <pre><code>npm install @angelitosystems/sdk-visioner7
+npm install @nestjs/axios axios reflect-metadata rxjs</code></pre>
+          </div>
+          <p>Si el proyecto vive dentro de un monorepo o como código interno, también puede integrarse como librería privada, por ejemplo en <code>libs/sunat-sdk/</code>, o distribuirse mediante un registro privado de paquetes.</p>
+        </section>
+
+        <section class="doc-section" id="requisitos">
+          <p class="section-kicker">Primeros pasos</p>
+          <h2>Requisitos</h2>
+          <ul>
+            <li>NestJS 12 y TypeScript en el proyecto host.</li>
+            <li>Node.js en una versión moderna con soporte activo.</li>
+            <li><code>@nestjs/axios</code>, <code>axios</code>, <code>reflect-metadata</code> y <code>rxjs</code> como dependencias del proyecto.</li>
+            <li>Credenciales vigentes del servicio contratado (token de autenticación y, según la operación, token de negocio o credenciales SOL).</li>
+          </ul>
+        </section>
+
+        <section class="doc-section" id="configuracion">
+          <p class="section-kicker">Configuración</p>
+          <h2>Registra el módulo</h2>
+          <p>Usa <code>forRoot</code> para una configuración directa, o <code>forRootAsync</code> cuando las credenciales provienen de variables de entorno o de un <code>ConfigService</code>. El módulo puede registrarse como global para evitar importaciones repetidas donde se use <code>SunatService</code>.</p>
+
+          <div class="tab-group">
+            <div class="tab-bar" role="tablist">
+              <button class="tab-button active" role="tab">forRoot</button>
+              <button class="tab-button" role="tab">forRootAsync</button>
+            </div>
+            <div class="tab-panel active">
+              <div class="code-block">
+                <div class="code-head"><span>app.module.ts</span><button class="copy-button">Copiar</button></div>
+                <pre><code><span class="code-keyword">import</span> { Module } <span class="code-keyword">from</span> <span class="code-string">'@nestjs/common'</span>;
+<span class="code-keyword">import</span> { SunatModule } <span class="code-keyword">from</span> <span class="code-string">'@angelitosystems/sdk-visioner7'</span>;
+
+<span class="code-decorator">@Module</span>({
+  imports: [
+    SunatModule.forRoot({
+      baseUrl: <span class="code-string">'https://visioner7-api.com/api'</span>,
+      authToken: process.env.SUNAT_AUTH_TOKEN,
+      businessToken: process.env.SUNAT_BUSINESS_TOKEN,
+      timeout: <span class="code-string">15000</span>,
+    }),
+  ],
+})
+<span class="code-keyword">export class</span> AppModule {}</code></pre>
+              </div>
+              <table class="opt-table">
+                <tr><th>Opción</th><th>Descripción</th></tr>
+                <tr><td>baseUrl</td><td>URL base del servicio contratado.</td></tr>
+                <tr><td>authToken</td><td>Token de autenticación proporcionado para el servicio.</td></tr>
+                <tr><td>businessToken</td><td>Token utilizado por determinadas operaciones.</td></tr>
+                <tr><td>timeout</td><td>Tiempo máximo de espera de las solicitudes HTTP.</td></tr>
+              </table>
+              <p>El valor de <code>baseUrl</code> debe corresponder al entorno y servicio que tenga habilitado el cliente.</p>
+            </div>
+            <div class="tab-panel">
+              <p style="color:var(--muted); font-size:14.5px; margin:0 0 4px;">Recomendado cuando la configuración proviene de variables de entorno o <code>ConfigService</code>.</p>
+              <div class="code-block">
+                <div class="code-head"><span>app.module.ts</span><button class="copy-button">Copiar</button></div>
+                <pre><code><span class="code-keyword">import</span> { Module } <span class="code-keyword">from</span> <span class="code-string">'@nestjs/common'</span>;
+<span class="code-keyword">import</span> { ConfigModule, ConfigService } <span class="code-keyword">from</span> <span class="code-string">'@nestjs/config'</span>;
+<span class="code-keyword">import</span> { SunatModule } <span class="code-keyword">from</span> <span class="code-string">'@angelitosystems/sdk-visioner7'</span>;
+
+<span class="code-decorator">@Module</span>({
+  imports: [
+    ConfigModule.forRoot({ isGlobal: <span class="code-string">true</span> }),
+
+    SunatModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        baseUrl: config.get&lt;string&gt;(<span class="code-string">'SUNAT_BASE_URL'</span>),
+        authToken: config.get&lt;string&gt;(<span class="code-string">'SUNAT_AUTH_TOKEN'</span>),
+        businessToken: config.get&lt;string&gt;(<span class="code-string">'SUNAT_BUSINESS_TOKEN'</span>),
+        timeout: <span class="code-string">15000</span>,
+      }),
+    }),
+  ],
+})
+<span class="code-keyword">export class</span> AppModule {}</code></pre>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="doc-section" id="variables-entorno">
+          <p class="section-kicker">Configuración</p>
+          <h2>Variables de entorno</h2>
+          <p>Nunca almacenes credenciales reales directamente en el código fuente. Usa variables de entorno, un secret manager o los secretos administrados por tu proveedor de infraestructura.</p>
+          <div class="code-block">
+            <div class="code-head"><span>.env</span><button class="copy-button">Copiar</button></div>
+            <pre><code>SUNAT_BASE_URL=https://visioner7-api.com/api
+SUNAT_AUTH_TOKEN=your_token_here
+SUNAT_BUSINESS_TOKEN=your_business_token_here</code></pre>
+          </div>
+        </section>
+
+        <section class="doc-section" id="uso">
+          <p class="section-kicker">Uso</p>
+          <h2>Inyecta el servicio donde lo necesites</h2>
+          <p>Una vez registrado el módulo, <code>SunatService</code> queda disponible para cualquier servicio de dominio o controlador de NestJS.</p>
+          <div class="code-block">
+            <div class="code-head"><span>facturacion.service.ts</span><button class="copy-button">Copiar</button></div>
+            <pre><code><span class="code-keyword">import</span> { Injectable } <span class="code-keyword">from</span> <span class="code-string">'@nestjs/common'</span>;
+<span class="code-keyword">import</span> { SunatService } <span class="code-keyword">from</span> <span class="code-string">'@angelitosystems/sdk-visioner7'</span>;
+
+<span class="code-decorator">@Injectable</span>()
+<span class="code-keyword">export class</span> FacturacionService {
+  <span class="code-keyword">constructor</span>(<span class="code-keyword">private readonly</span> sunatService: SunatService) {}
+
+  <span class="code-keyword">async</span> validarCliente(ruc: string) {
+    <span class="code-keyword">const</span> response = <span class="code-keyword">await</span> this.sunatService.consultarRuc(ruc);
+    <span class="code-keyword">return</span> response.comprobante;
+  }
+}</code></pre>
+          </div>
+        </section>
+
+        <section class="doc-section" id="referencia">
+          <p class="section-kicker">Referencia de API</p>
+          <h2>Tres grupos de operaciones</h2>
+          <p>Cada grupo se identifica con un color a lo largo de toda la guía, para que sea fácil ubicar a qué frente pertenece cada método.</p>
+          <div class="api-grid">
+            <article class="api-card consultas"><span class="chip consultas"><i></i>Consultas</span><h3>RUC, DNI y tipo de cambio</h3><p>Consulta de RUC, domicilio fiscal, establecimientos anexos, DNI y tipo de cambio.</p><code>consultarRuc()</code><code>consultarDni()</code><code>obtenerTipoCambio()</code></article>
+            <article class="api-card guias"><span class="chip guias"><i></i>Guías de remisión</span><h3>Emisión y seguimiento</h3><p>Emisión de guías por tipo de remitente o transportista, y consulta de estado mediante ticket.</p><code>emitirGuiaRemision()</code><code>consultarTicketGuiaRemision()</code></article>
+            <article class="api-card comprobantes"><span class="chip comprobantes"><i></i>Comprobantes</span><h3>CPE y facturación</h3><p>Generación de comprobantes de pago electrónicos, al contado o al crédito.</p><code>generarCpe()</code><code>generarFacturaContado()</code></article>
+          </div>
+
+          <h3 id="consultas">Consultar RUC</h3>
+          <div class="method">
+            <div class="method-head"><span class="method-name">consultarRuc(ruc: string | number)</span><span class="method-returns">Promise&lt;ConsultarRucResponse&gt;</span></div>
+            <p class="method-desc">Realiza una consulta de RUC mediante el servicio contratado. La aplicación debe contar con las credenciales y permisos correspondientes para utilizar esta operación.</p>
+            <details>
+              <summary>Ver ejemplo</summary>
+              <div class="code-block">
+                <div class="code-head"><span>Ejemplo</span><button class="copy-button">Copiar</button></div>
+                <pre><code><span class="code-keyword">const</span> response = <span class="code-keyword">await</span> sunatService.consultarRuc(<span class="code-string">'20611187719'</span>);
+console.log(response.comprobante.desRazonSocial);</code></pre>
+              </div>
+            </details>
+          </div>
+
+          <div class="method">
+            <div class="method-head"><span class="method-name">consultarLocalesEstablecimientos(ruc, tipoConsulta)</span><span class="method-returns">Promise&lt;LocalesEstablecimientosResponse&gt;</span></div>
+            <p class="method-desc">Consulta el domicilio fiscal o los establecimientos anexos de un RUC. El tipo de consulta acepta el enum <code>TipoConsultaLocal</code> o su valor numérico equivalente, por ejemplo <code>TipoConsultaLocal.DOMICILIO_FISCAL</code> o <code>1</code>.</p>
+            <details>
+              <summary>Ver ejemplo</summary>
+              <div class="code-block">
+                <div class="code-head"><span>Ejemplo</span><button class="copy-button">Copiar</button></div>
+                <pre><code><span class="code-keyword">const</span> domicilio = <span class="code-keyword">await</span> sunatService.consultarLocalesEstablecimientos(
+  <span class="code-string">'20611187719'</span>,
+  TipoConsultaLocal.DOMICILIO_FISCAL,
+);</code></pre>
+              </div>
+            </details>
+          </div>
+
+          <div class="method">
+            <div class="method-head"><span class="method-name">consultarDni(dni: string | number)</span><span class="method-returns">Promise&lt;ConsultarDniResponse&gt;</span></div>
+            <p class="method-desc">Obtiene los datos asociados a un DNI. El uso de información personal debe realizarse de acuerdo con la normativa aplicable y con una finalidad legítima.</p>
+            <details>
+              <summary>Ver ejemplo</summary>
+              <div class="code-block">
+                <div class="code-head"><span>Ejemplo</span><button class="copy-button">Copiar</button></div>
+                <pre><code><span class="code-keyword">const</span> persona = <span class="code-keyword">await</span> sunatService.consultarDni(<span class="code-string">'10292315'</span>);
+console.log(persona.comprobante.nomPerNat);</code></pre>
+              </div>
+            </details>
+          </div>
+
+          <div class="method">
+            <div class="method-head"><span class="method-name">obtenerTipoCambio(params: TipoCambioRequest)</span><span class="method-returns">Promise&lt;TipoCambioResponse&gt;</span></div>
+            <p class="method-desc">Devuelve el tipo de cambio de compra y venta para el año y mes indicados. Cuando corresponda, el SDK utiliza el <code>businessToken</code> configurado en el módulo.</p>
+            <details>
+              <summary>Ver ejemplo</summary>
+              <div class="code-block">
+                <div class="code-head"><span>Ejemplo</span><button class="copy-button">Copiar</button></div>
+                <pre><code><span class="code-keyword">const</span> response = <span class="code-keyword">await</span> sunatService.obtenerTipoCambio({ anio: <span class="code-string">2025</span>, mes: <span class="code-string">7</span> });
+
+<span class="code-keyword">const</span> compra = response.data.find(item => item.codTipo === <span class="code-string">'C'</span>)?.valTipo;
+<span class="code-keyword">const</span> venta = response.data.find(item => item.codTipo === <span class="code-string">'V'</span>)?.valTipo;</code></pre>
+              </div>
+            </details>
+          </div>
+
+          <h3 id="guias-remision">Guías de remisión</h3>
+          <div class="method">
+            <div class="method-head"><span class="method-name">emitirGuiaRemision(payload: GuiaRemisionRequest)</span><span class="method-returns">Promise&lt;GuiaRemisionResponse&gt;</span></div>
+            <p class="method-desc">Emite una guía de remisión con los datos del documento, el emisor y el detalle de ítems transportados. Los campos requeridos dependen del tipo de guía y de las especificaciones del servicio contratado.</p>
+            <p class="aliases">También disponible como <code>emitirGuiaRemisionRemitentePublico()</code>, <code>emitirGuiaRemisionRemitentePrivado()</code> y <code>emitirGuiaRemisionTransportista()</code>, métodos semánticos que actúan como capa de conveniencia sobre la misma operación.</p>
+            <details>
+              <summary>Ver ejemplo</summary>
+              <div class="code-block">
+                <div class="code-head"><span>Ejemplo ilustrativo</span><button class="copy-button">Copiar</button></div>
+                <pre><code><span class="code-keyword">const</span> resultado = <span class="code-keyword">await</span> sunatService.emitirGuiaRemision({
+  TIPO_PROCESO: <span class="code-string">'1'</span>,
+  NRO_DOCUMENTO_EMPRESA: <span class="code-string">'YOUR_RUC'</span>,
+  USUARIO_SOL_EMPRESA: <span class="code-string">'YOUR_SOL_USER'</span>,
+  PASS_SOL_EMPRESA: <span class="code-string">'YOUR_SOL_PASSWORD'</span>,
+  PAS_FIRMA: <span class="code-string">'YOUR_SIGNATURE_PASSWORD'</span>,
+  COD_TIPO_DOCUMENTO: <span class="code-string">'09'</span>,
+  NRO_COMPROBANTE: <span class="code-string">'T001-00000002'</span>,
+  FECHA_DOCUMENTO: <span class="code-string">'2025-08-10'</span>,
+  RAZON_SOCIAL_EMPRESA: <span class="code-string">'EMPRESA DE EJEMPLO S.A.C.'</span>,
+  detalle: [
+    { ITEM: <span class="code-string">'1'</span>, UNIDAD_MEDIDA: <span class="code-string">'NIU'</span>, CANTIDAD: <span class="code-string">'1'</span>, ORDER_ITEM: <span class="code-string">'1'</span>, DESCRIPCION: <span class="code-string">'PRODUCTO DE EJEMPLO'</span>, CODIGO: <span class="code-string">'PROD001'</span> },
+  ],
+});
+<span class="code-comment">// los valores mostrados son ilustrativos: sustitúyelos por los de tu propio entorno</span></code></pre>
+              </div>
+            </details>
+          </div>
+
+          <div class="method">
+            <div class="method-head"><span class="method-name">consultarTicketGuiaRemision(payload)</span><span class="method-returns">Promise&lt;GuiaRemisionTicketStatusResponse&gt;</span></div>
+            <p class="method-desc">Consulta el estado de una guía a partir del ticket devuelto en la emisión.</p>
+            <details>
+              <summary>Ver ejemplo</summary>
+              <div class="code-block">
+                <div class="code-head"><span>Ejemplo</span><button class="copy-button">Copiar</button></div>
+                <pre><code><span class="code-keyword">const</span> estado = <span class="code-keyword">await</span> sunatService.consultarTicketGuiaRemision({
+  TICKET: <span class="code-string">'YOUR_TICKET'</span>,
+  NRO_DOCUMENTO_EMPRESA: <span class="code-string">'YOUR_RUC'</span>,
+  USUARIO_SOL_EMPRESA: <span class="code-string">'YOUR_SOL_USER'</span>,
+  PASS_SOL_EMPRESA: <span class="code-string">'YOUR_SOL_PASSWORD'</span>,
+  ID_TOKEN: <span class="code-string">'YOUR_ID_TOKEN'</span>,
+  CLAVE_TOKEN: <span class="code-string">'YOUR_TOKEN_KEY'</span>,
+  COD_TIPO_DOCUMENTO: <span class="code-string">'31'</span>,
+  NRO_COMPROBANTE: <span class="code-string">'V001-00000001'</span>,
+  TIPO_PROCESO: <span class="code-string">'1'</span>,
+});</code></pre>
+              </div>
+            </details>
+          </div>
+
+          <h3 id="comprobantes">Comprobantes electrónicos</h3>
+          <div class="method">
+            <div class="method-head"><span class="method-name">generarCpe(payload: GenerarCpeRequest)</span><span class="method-returns">Promise&lt;GenerarCpeResponse&gt;</span></div>
+            <p class="method-desc">Genera un comprobante de pago electrónico. La modalidad de pago se determina mediante la información enviada en <code>detalle_forma_pago</code>.</p>
+            <p class="aliases">También disponible como <code>generarFacturaContado()</code> y <code>generarFacturaCredito()</code>.</p>
+            <details>
+              <summary>Ver ejemplo</summary>
+              <div class="code-block">
+                <div class="code-head"><span>Ejemplo ilustrativo</span><button class="copy-button">Copiar</button></div>
+                <pre><code><span class="code-keyword">const</span> factura = <span class="code-keyword">await</span> sunatService.generarCpe({
+  txtTIPO_OPERACION: <span class="code-string">'0101'</span>,
+  txtTOTAL_GRAVADAS: <span class="code-string">'305.08'</span>,
+  txtSUB_TOTAL: <span class="code-string">'305.08'</span>,
+  txtPOR_IGV: <span class="code-string">'18.00'</span>,
+  txtTOTAL_IGV: <span class="code-string">'54.92'</span>,
+  txtTOTAL: <span class="code-string">'360.00'</span>,
+  txtCOD_TIPO_DOCUMENTO: <span class="code-string">'01'</span>,
+  txtCOD_MONEDA: <span class="code-string">'PEN'</span>,
+  txtNRO_COMPROBANTE: <span class="code-string">'F001-00000001'</span>,
+  txtNRO_DOCUMENTO_CLIENTE: <span class="code-string">'YOUR_CLIENT_DOCUMENT'</span>,
+  txtRAZON_SOCIAL_CLIENTE: <span class="code-string">'CLIENTE DE EJEMPLO'</span>,
+  txtNRO_DOCUMENTO_EMPRESA: <span class="code-string">'YOUR_RUC'</span>,
+  txtRAZON_SOCIAL_EMPRESA: <span class="code-string">'EMPRESA DE EJEMPLO S.A.C.'</span>,
+  detalle_forma_pago: [{ COD_FORMA_PAGO: <span class="code-string">'Contado'</span>, MONTO_FORMA_PAGO: <span class="code-string">'360.00'</span> }],
+  detalle: [{
+    txtITEM: <span class="code-string">'1'</span>, txtUNIDAD_MEDIDA_DET: <span class="code-string">'NIU'</span>, txtCANTIDAD_DET: <span class="code-string">'1.00'</span>,
+    txtPRECIO_DET: <span class="code-string">'360.00'</span>, txtIMPORTE_DET: <span class="code-string">'305.08'</span>, txtIGV: <span class="code-string">'54.92'</span>,
+    txtCODIGO_DET: <span class="code-string">'PROD001'</span>, txtDESCRIPCION_DET: <span class="code-string">'PRODUCTO DE EJEMPLO'</span>,
+  }],
+});
+
+console.log(factura.msj_sunat, factura.archivo);</code></pre>
+              </div>
+            </details>
+          </div>
+        </section>
+
+        <section class="doc-section" id="errores">
+          <p class="section-kicker">Operación</p>
+          <h2>Manejo de errores</h2>
+          <p>El SDK centraliza los errores mediante <code>SunatApiException</code>, que extiende <code>HttpException</code> de NestJS, para integrarse con los <code>ExceptionFilter</code> globales de tu aplicación.</p>
+          <div class="code-block">
+            <div class="code-head"><span>Ejemplo</span><button class="copy-button">Copiar</button></div>
+            <pre><code><span class="code-keyword">import</span> { SunatApiException } <span class="code-keyword">from</span> <span class="code-string">'@angelitosystems/sdk-visioner7'</span>;
+
+<span class="code-keyword">try</span> {
+  <span class="code-keyword">await</span> sunatService.consultarRuc(<span class="code-string">'00000000000'</span>);
+} <span class="code-keyword">catch</span> (error) {
+  <span class="code-keyword">if</span> (error <span class="code-keyword">instanceof</span> SunatApiException) {
+    console.error(error.endpoint, error.providerResponse);
+  }
+  <span class="code-keyword">throw</span> error;
+}</code></pre>
+          </div>
+        </section>
+
+        <section class="doc-section" id="arquitectura">
+          <p class="section-kicker">Operación</p>
+          <h2>Arquitectura recomendada</h2>
+          <p>El frontend no debe comunicarse directamente con el servicio externo usando credenciales privadas. Las credenciales permanecen exclusivamente en el backend, detrás de <code>SunatService</code>.</p>
+          <div class="flow">
+            <div class="flow-row">
+              <div class="flow-box">Frontend</div>
+              <span class="flow-arrow">↓</span>
+              <div class="flow-box">Backend / API</div>
+              <span class="flow-arrow">↓</span>
+              <div class="flow-branch">
+                <div class="flow-box">Clientes</div>
+                <div class="flow-box">Facturación</div>
+                <div class="flow-box">Guías</div>
+                <div class="flow-box">Reportes</div>
+              </div>
+              <span class="flow-arrow">↓</span>
+              <div class="flow-box core">SunatService</div>
+              <span class="flow-arrow">↓</span>
+              <div class="flow-box">Servicio API contratado</div>
+              <span class="flow-arrow">↓</span>
+              <div class="flow-box">Operaciones correspondientes</div>
+            </div>
+          </div>
+          <p class="flow-note">Los distintos servicios de dominio de tu backend hablan con <code>SunatService</code>; solo esa capa conoce el servicio externo.</p>
+        </section>
+
+        <section class="security-callout" id="seguridad">
+          <div class="shield">!</div>
+          <div>
+            <p class="section-kicker">Seguridad</p>
+            <h2>Las credenciales nunca salen del backend</h2>
+            <p>No expongas tokens SOL ni credenciales en frontend, JavaScript de navegador, apps móviles sin protección o repositorios públicos. Usa variables de entorno o un secret manager.</p>
+            <div class="redacted-list">
+              <span>SUNAT_AUTH_TOKEN</span><span>SUNAT_BUSINESS_TOKEN</span><span>USUARIO_SOL_EMPRESA</span><span>PASS_SOL_EMPRESA</span><span>PAS_FIRMA</span><span>CLAVE_TOKEN</span><span>ID_TOKEN</span>
+            </div>
+            <div class="code-block compact" style="margin-top:18px;">
+              <div class="code-head"><span>.gitignore</span><button class="copy-button">Copiar</button></div>
+              <pre><code>.env
+.env.local
+.env.production</code></pre>
+            </div>
+          </div>
+          <a href="https://github.com/angelitosystems/SDK-VISIONER7#readme" target="_blank" rel="noreferrer">Leer guía completa<span aria-hidden="true">↗</span></a>
+        </section>
+
+        <section class="doc-section" id="proteccion-datos">
+          <p class="section-kicker">Seguridad</p>
+          <h2>Protección de datos</h2>
+          <p>Las operaciones de consulta y emisión pueden involucrar información empresarial o datos personales. La aplicación que utilice este SDK es responsable de:</p>
+          <ul>
+            <li>Gestionar adecuadamente las credenciales.</li>
+            <li>Implementar controles de acceso.</li>
+            <li>Proteger la información almacenada.</li>
+            <li>Evitar registrar información sensible innecesariamente.</li>
+            <li>Cumplir con la normativa que resulte aplicable.</li>
+            <li>Utilizar las credenciales únicamente para las finalidades autorizadas.</li>
+            <li>Implementar medidas adecuadas de seguridad.</li>
+          </ul>
+          <p>El SDK no pretende sustituir las obligaciones legales, regulatorias o contractuales del sistema que lo utilice.</p>
+        </section>
+
+        <section class="doc-section" id="estructura">
+          <p class="section-kicker">Proyecto</p>
+          <h2>Estructura de carpetas</h2>
+          <p>Compilar con <code>npm run build</code> genera los archivos JavaScript y las declaraciones TypeScript en <code>dist/</code>.</p>
+          <div class="tree">@angelitosystems/sdk-visioner7/
+├── src/
+│   ├── interfaces/
+│   │   ├── sunat-config.interface.ts
+│   │   ├── consultas.interface.ts
+│   │   ├── guia-remision.interface.ts
+│   │   ├── cpe.interface.ts
+│   │   └── index.ts
+│   ├── exceptions/
+│   │   └── sunat-api.exception.ts
+│   ├── constants.ts
+│   ├── sunat.module.ts
+│   ├── sunat.service.ts
+│   └── index.ts
+├── example/
+│   ├── app.module.ts
+│   └── app.controller.ts
+├── package.json
+├── tsconfig.json
+├── .gitignore
+└── README.md</div>
+          <p style="margin-top:18px;">La carpeta <code>example/</code> contiene una integración de referencia completa, registrando el módulo con <code>forRootAsync</code> a partir de <code>ConfigService</code>.</p>
+        </section>
+
+        <section class="doc-section" id="naturaleza">
+          <p class="section-kicker">Proyecto</p>
+          <h2>Naturaleza del proyecto y licencia</h2>
+          <p>Este proyecto es una librería de integración independiente. No constituye una API propia de SUNAT ni un producto oficial de Visioner7, y no implica afiliación, asociación, patrocinio o representación por parte de Visioner7. Se limita a ofrecer una interfaz de software para integrar una aplicación con un servicio externo al que el usuario o cliente tenga acceso autorizado.</p>
+
+          <div class="notice">
+            <p class="notice-tag">Responsabilidad del usuario de la librería</p>
+            <ol>
+              <li>Contar con acceso legítimo al servicio externo.</li>
+              <li>Mantener vigentes sus credenciales.</li>
+              <li>Cumplir las condiciones de uso del servicio contratado.</li>
+              <li>Utilizar las funcionalidades de acuerdo con las autorizaciones correspondientes.</li>
+              <li>Proteger las credenciales de acceso.</li>
+              <li>Cumplir las obligaciones tributarias, comerciales, de privacidad y seguridad que correspondan.</li>
+              <li>Validar que los documentos generados cumplan con los requisitos aplicables a su operación.</li>
+            </ol>
+          </div>
+
+          <div class="notice">
+            <p class="notice-tag">Descargo de responsabilidad</p>
+            <p style="margin:0;">El desarrollador de esta librería no garantiza la disponibilidad permanente, exactitud, continuidad, tiempos de respuesta o modificaciones futuras del servicio externo. Cambios en endpoints, autenticación, formatos de respuesta, límites o funcionalidades por parte del proveedor pueden requerir actualizaciones del SDK. Usar este SDK no sustituye la revisión de la documentación, condiciones contractuales o requisitos técnicos del servicio externo.</p>
+          </div>
+
+          <h3>Licencia</h3>
+          <p>La licencia debe definirse según la forma en que se distribuya la librería. Para uso privado en proyectos propios o de clientes, se recomienda mantener el repositorio privado y establecer por contrato las condiciones de uso, distribución y soporte.</p>
+
+          <p style="margin-top:28px;">Para conocer las condiciones, disponibilidad y características actuales del servicio externo, consulta directamente <a href="https://visioner7-api.com/" target="_blank" rel="noreferrer" style="text-decoration:underline;">visioner7-api.com</a>.</p>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <span>© 2026 AngelitoSystems</span>
+    <span>Integración independiente para servicios autorizados</span>
+    <a href="https://github.com/angelitosystems/SDK-VISIONER7" target="_blank" rel="noreferrer">Código fuente↗</a>
+  </footer>
+
+  <script>
+    // copiar código: usa data-copy si existe, o el contenido del bloque de código adyacente
+    document.querySelectorAll('.copy-button').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const text = button.dataset.copy || button.closest('.code-block')?.querySelector('code')?.innerText || '';
+        try { await navigator.clipboard.writeText(text); } catch (e) {}
+        const original = button.textContent;
+        button.textContent = 'Copiado';
+        setTimeout(() => { button.textContent = original; }, 1400);
+      });
+    });
+
+    // pestañas forRoot / forRootAsync
+    document.querySelectorAll('.tab-group').forEach((group) => {
+      const buttons = group.querySelectorAll('.tab-button');
+      const panels = group.querySelectorAll('.tab-panel');
+      buttons.forEach((btn, i) => {
+        btn.addEventListener('click', () => {
+          buttons.forEach((b) => b.classList.remove('active'));
+          panels.forEach((p) => p.classList.remove('active'));
+          btn.classList.add('active');
+          panels[i].classList.add('active');
+        });
+      });
+    });
+
+    // resalta el enlace activo del índice lateral al hacer scroll
+    const navLinks = Array.from(document.querySelectorAll('.side-nav a'));
+    const sections = navLinks.map((a) => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+    if ('IntersectionObserver' in window && sections.length) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const link = navLinks.find((a) => a.getAttribute('href') === '#' + entry.target.id);
+            if (link) {
+              navLinks.forEach((a) => a.classList.remove('active'));
+              link.classList.add('active');
+            }
+          }
+        });
+      }, { rootMargin: '-15% 0px -70% 0px' });
+      sections.forEach((s) => observer.observe(s));
+    }
+  </script>
+</body>
+</html>
