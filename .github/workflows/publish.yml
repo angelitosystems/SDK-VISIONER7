@@ -1,0 +1,138 @@
+name: Release and Publish SDK
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release (example: 1.0.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build, Release and Publish
+    runs-on: ubuntu-latest
+
+    steps:
+      # ----------------------------------------
+      # 1. Checkout
+      # ----------------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ----------------------------------------
+      # 2. Setup Node
+      # ----------------------------------------
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      # ----------------------------------------
+      # 3. Configure Git
+      # ----------------------------------------
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      # ----------------------------------------
+      # 4. Validate version
+      # ----------------------------------------
+      - name: Validate version
+        run: |
+          VERSION="${{ inputs.version }}"
+
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid version: $VERSION"
+            echo "Expected format: X.Y.Z"
+            exit 1
+          fi
+
+          echo "Version: $VERSION"
+
+      # ----------------------------------------
+      # 5. Check package name
+      # ----------------------------------------
+      - name: Check package
+        run: |
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          echo "Package: $PACKAGE_NAME"
+
+      # ----------------------------------------
+      # 6. Install dependencies
+      # ----------------------------------------
+      - name: Install dependencies
+        run: npm ci
+
+      # ----------------------------------------
+      # 7. Update package version
+      # ----------------------------------------
+      - name: Update package version
+        run: |
+          npm version "${{ inputs.version }}" \
+            --no-git-tag-version
+
+      # ----------------------------------------
+      # 8. Build
+      # ----------------------------------------
+      - name: Build package
+        run: npm run build
+
+      # ----------------------------------------
+      # 9. Check package contents
+      # ----------------------------------------
+      - name: Verify package
+        run: |
+          npm pack --dry-run
+
+      # ----------------------------------------
+      # 10. Commit version
+      # ----------------------------------------
+      - name: Commit version
+        run: |
+          git add package.json package-lock.json
+
+          git commit \
+            -m "chore(release): v${{ inputs.version }}"
+
+      # ----------------------------------------
+      # 11. Create Git tag
+      # ----------------------------------------
+      - name: Create Git tag
+        run: |
+          git tag "v${{ inputs.version }}"
+
+      # ----------------------------------------
+      # 12. Push commit and tag
+      # ----------------------------------------
+      - name: Push changes
+        run: |
+          git push origin HEAD
+          git push origin "v${{ inputs.version }}"
+
+      # ----------------------------------------
+      # 13. Create GitHub Release
+      # ----------------------------------------
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "v${{ inputs.version }}"
+          name: "v${{ inputs.version }}"
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+
+      # ----------------------------------------
+      # 14. Publish to npm
+      # ----------------------------------------
+      - name: Publish to npm
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

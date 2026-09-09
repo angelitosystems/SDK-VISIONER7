@@ -1,7 +1,7 @@
 {
-  "name": "nestjs-sunat-visioner7-sdk",
+  "name": "sdk-visioner7",
   "version": "1.0.0",
-  "description": "SDK para NestJS (TypeScript) que envuelve la API de Consultas RUC-DNI, Tipo de Cambio, Guías de Remisión y CPE de Visioner7 (service1.visioner7-api.com).",
+  "description": "SDK independiente para NestJS y TypeScript que facilita la integración con un servicio externo contratado para consultas RUC-DNI, Tipo de Cambio, Guías de Remisión y CPE.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
