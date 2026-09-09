@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { SunatModule } from 'nestjs-sunat-visioner7-sdk';
+import { SunatModule } from '@angelitosystems/sdk-visioner7';
 import { AppController } from './app.controller';
 
 @Module({

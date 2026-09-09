@@ -41,7 +41,7 @@ El SDK busca proporcionar una capa de abstracción para que la aplicación no te
 El SDK utiliza `@nestjs/axios` para realizar las peticiones HTTP.
 
 ```bash
-npm install nestjs-sunat-visioner7-sdk
+npm install @angelitosystems/sdk-visioner7
 npm install @nestjs/axios axios reflect-metadata rxjs
 ```
 
@@ -65,7 +65,7 @@ Configuración síncrona:
 
 ```ts
 import { Module } from '@nestjs/common';
-import { SunatModule } from 'nestjs-sunat-visioner7-sdk';
+import { SunatModule } from '@angelitosystems/sdk-visioner7';
 
 @Module({
   imports: [
@@ -100,7 +100,7 @@ Se recomienda utilizar `forRootAsync` cuando las credenciales y configuración p
 ```ts
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { SunatModule } from 'nestjs-sunat-visioner7-sdk';
+import { SunatModule } from '@angelitosystems/sdk-visioner7';
 
 @Module({
   imports: [
@@ -156,7 +156,7 @@ Una vez configurado el módulo, puedes inyectar `SunatService` en cualquier serv
 
 ```ts
 import { Injectable } from '@nestjs/common';
-import { SunatService } from 'nestjs-sunat-visioner7-sdk';
+import { SunatService } from '@angelitosystems/sdk-visioner7';
 
 @Injectable()
 export class FacturacionService {
@@ -480,7 +480,7 @@ Ejemplo:
 
 ```ts
 import { SunatApiException } from
-  'nestjs-sunat-visioner7-sdk';
+  '@angelitosystems/sdk-visioner7';
 
 try {
   await this.sunatService.consultarRuc(
@@ -661,7 +661,7 @@ con los archivos JavaScript y declaraciones TypeScript correspondientes.
 # Estructura del proyecto
 
 ```text
-nestjs-sunat-visioner7-sdk/
+@angelitosystems/sdk-visioner7/
 │
 ├── src/
 │   ├── interfaces/

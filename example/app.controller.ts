@@ -4,7 +4,7 @@ import {
   TipoConsultaLocal,
   GenerarCpeRequest,
   GuiaRemisionRequest,
-} from 'nestjs-sunat-visioner7-sdk';
+} from '@angelitosystems/sdk-visioner7';
 
 @Controller('sunat')
 export class AppController {
