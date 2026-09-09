@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: write
+  id-token: write
 
 jobs:
   release:
@@ -21,7 +22,7 @@ jobs:
       # 1. Checkout
       # ----------------------------------------
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -29,7 +30,7 @@ jobs:
       # 2. Setup Node
       # ----------------------------------------
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
@@ -117,7 +118,11 @@ jobs:
       # ----------------------------------------
       - name: Create Git tag
         run: |
-          git tag "v${{ inputs.version }}"
+          if git rev-parse "v${{ inputs.version }}" >/dev/null 2>&1; then
+            echo "Tag v${{ inputs.version }} already exists"
+          else
+            git tag "v${{ inputs.version }}"
+          fi
 
       # ----------------------------------------
       # 12. Push commit and tag
@@ -143,6 +148,4 @@ jobs:
       # 14. Publish to npm
       # ----------------------------------------
       - name: Publish to npm
-        run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public --provenance
