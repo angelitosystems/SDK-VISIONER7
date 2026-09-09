@@ -7,13 +7,13 @@ import { AppController } from './app.controller';
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
 
-    // Opción 1: configuración síncrona
+    // Option 1: synchronous configuration
     // SDKVisioner7Module.forRoot({
     //   authToken: process.env.SDK_VISIONER7_AUTH_TOKEN,
     //   businessToken: 'v7',
     // }),
 
-    // Opción 2: configuración asíncrona (recomendada)
+    // Option 2: async configuration (recommended)
     SDKVisioner7Module.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

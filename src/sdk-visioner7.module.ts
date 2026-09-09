@@ -7,10 +7,13 @@ import {
 } from './interfaces/index.js';
 import { SDKVisioner7Service } from './sdk-visioner7.service.js';
 
+/**
+ * NestJS module exposing {@link SDKVisioner7Service}.
+ */
 @Module({})
 export class SDKVisioner7Module {
   /**
-   * Registro síncrono del módulo, ideal para AppModule raíz.
+   * Synchronous registration, ideal for the root AppModule.
    *
    * @example
    * SDKVisioner7Module.forRoot({
@@ -35,8 +38,8 @@ export class SDKVisioner7Module {
   }
 
   /**
-   * Registro asíncrono, útil cuando la configuración depende de
-   * ConfigService u otro provider asíncrono.
+   * Async registration, useful when configuration depends on
+   * ConfigService or another async provider.
    *
    * @example
    * SDKVisioner7Module.forRootAsync({
@@ -63,6 +66,3 @@ export class SDKVisioner7Module {
     };
   }
 }
-
-/** @deprecated Usa {@link SDKVisioner7Module} en su lugar. */
-export const SunatModule = SDKVisioner7Module;

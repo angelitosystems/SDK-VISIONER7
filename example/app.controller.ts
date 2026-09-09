@@ -1,9 +1,9 @@
-import { Controller, Get, Param, Post, Body } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import {
+  EstablishmentQueryType,
+  GenerateVoucherRequest,
+  RemittanceGuideRequest,
   SDKVisioner7Service,
-  TipoConsultaLocal,
-  GenerarCpeRequest,
-  GuiaRemisionRequest,
 } from '@angelitosystems/sdk-visioner7';
 
 @Controller('sunat')
@@ -11,49 +11,46 @@ export class AppController {
   constructor(private readonly sdkVisioner7Service: SDKVisioner7Service) {}
 
   @Get('ruc/:ruc')
-  consultarRuc(@Param('ruc') ruc: string) {
-    return this.sdkVisioner7Service.consultarRuc(ruc);
+  lookupTaxpayer(@Param('ruc') ruc: string) {
+    return this.sdkVisioner7Service.lookupTaxpayer(ruc);
   }
 
-  @Get('ruc/:ruc/domicilio-fiscal')
-  consultarDomicilioFiscal(@Param('ruc') ruc: string) {
-    return this.sdkVisioner7Service.consultarLocalesEstablecimientos(
+  @Get('ruc/:ruc/fiscal-address')
+  lookupFiscalAddress(@Param('ruc') ruc: string) {
+    return this.sdkVisioner7Service.lookupEstablishments(
       ruc,
-      TipoConsultaLocal.DOMICILIO_FISCAL,
+      EstablishmentQueryType.FISCAL_ADDRESS,
     );
   }
 
-  @Get('ruc/:ruc/establecimientos-anexos')
-  consultarEstablecimientos(@Param('ruc') ruc: string) {
-    return this.sdkVisioner7Service.consultarLocalesEstablecimientos(
+  @Get('ruc/:ruc/establishments')
+  lookupEstablishments(@Param('ruc') ruc: string) {
+    return this.sdkVisioner7Service.lookupEstablishments(
       ruc,
-      TipoConsultaLocal.ESTABLECIMIENTOS_ANEXOS,
+      EstablishmentQueryType.ANNEXED_ESTABLISHMENTS,
     );
   }
 
   @Get('dni/:dni')
-  consultarDni(@Param('dni') dni: string) {
-    return this.sdkVisioner7Service.consultarDni(dni);
+  lookupPerson(@Param('dni') dni: string) {
+    return this.sdkVisioner7Service.lookupPerson(dni);
   }
 
-  @Get('tipo-cambio/:anio/:mes')
-  obtenerTipoCambio(
-    @Param('anio') anio: string,
-    @Param('mes') mes: string,
-  ) {
-    return this.sdkVisioner7Service.obtenerTipoCambio({
-      anio: Number(anio),
-      mes: Number(mes),
+  @Get('exchange-rate/:year/:month')
+  getExchangeRate(@Param('year') year: string, @Param('month') month: string) {
+    return this.sdkVisioner7Service.getExchangeRate({
+      year: Number(year),
+      month: Number(month),
     });
   }
 
-  @Post('guia-remision')
-  emitirGuia(@Body() payload: GuiaRemisionRequest) {
-    return this.sdkVisioner7Service.emitirGuiaRemision(payload);
+  @Post('remittance-guide')
+  issueRemittanceGuide(@Body() payload: RemittanceGuideRequest) {
+    return this.sdkVisioner7Service.issueRemittanceGuide(payload);
   }
 
-  @Post('generar-cpe')
-  generarCpe(@Body() payload: GenerarCpeRequest) {
-    return this.sdkVisioner7Service.generarCpe(payload);
+  @Post('voucher')
+  generateVoucher(@Body() payload: GenerateVoucherRequest) {
+    return this.sdkVisioner7Service.generateVoucher(payload);
   }
 }

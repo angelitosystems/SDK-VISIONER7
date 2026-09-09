@@ -9,22 +9,56 @@ import {
   SDK_VISIONER7_MODULE_OPTIONS,
 } from './constants.js';
 import { SDKVisioner7ApiException } from './exceptions/sdk-visioner7-api.exception.js';
+import { SDKVisioner7ModuleOptions } from './interfaces/sdk-visioner7-config.interface.js';
 import {
-  ConsultarDniResponse,
-  ConsultarRucResponse,
-  GenerarCpeRequest,
-  GenerarCpeResponse,
-  GuiaRemisionRequest,
-  GuiaRemisionResponse,
-  GuiaRemisionTicketStatusRequest,
-  GuiaRemisionTicketStatusResponse,
-  LocalesEstablecimientosResponse,
-  SDKVisioner7ModuleOptions,
-  TipoCambioRequest,
-  TipoCambioResponse,
-  TipoConsultaLocal,
-} from './interfaces/index.js';
+  EstablishmentLookupResponse,
+  EstablishmentQueryType,
+  ExchangeRateRequest,
+  ExchangeRateResponse,
+  NaturalPersonLookupResponse,
+  TaxpayerLookupResponse,
+} from './interfaces/lookups.interface.js';
+import {
+  RemittanceGuideRequest,
+  RemittanceGuideResponse,
+  RemittanceGuideTicketStatusRequest,
+  RemittanceGuideTicketStatusResponse,
+} from './interfaces/remittance-guide.interface.js';
+import {
+  GenerateVoucherRequest,
+  GenerateVoucherResponse,
+} from './interfaces/voucher.interface.js';
+import {
+  EstablishmentLookupWireResponse,
+  ExchangeRateWireRequest,
+  ExchangeRateWireResponse,
+  NaturalPersonLookupWireResponse,
+  TaxpayerLookupWireResponse,
+  fromWireEstablishmentLookupResponse,
+  fromWireExchangeRateResponse,
+  fromWireNaturalPersonLookupResponse,
+  fromWireTaxpayerLookupResponse,
+  toWireExchangeRateRequest,
+} from './mapping/lookups.mapping.js';
+import {
+  RemittanceGuideWireResponse,
+  fromWireRemittanceGuideResponse,
+  toWireRemittanceGuideRequest,
+  toWireRemittanceGuideTicketStatusRequest,
+} from './mapping/remittance-guide.mapping.js';
+import { toWireGenerateVoucherRequest } from './mapping/voucher.mapping.js';
+import {
+  GenerateVoucherWireResponse,
+  fromWireGenerateVoucherResponse,
+} from './mapping/voucher-response.mapping.js';
 
+/**
+ * Type-safe integration service for the Visioner7 API
+ * (SUNAT lookups, electronic vouchers and remittance guides).
+ *
+ * All public methods accept/return English-typed objects; the SDK maps
+ * them to/from the Spanish wire format expected by the provider.
+ */
 @Injectable()
 export class SDKVisioner7Service {
   private readonly logger = new Logger(SDKVisioner7Service.name);
@@ -45,144 +79,137 @@ export class SDKVisioner7Service {
   }
 
   /* ============================================================
-   * Consulta RUC-DNI
+   * Lookups
    * ============================================================ */
 
   /**
-   * Consulta los datos de un contribuyente a partir de su RUC.
+   * Looks up taxpayer data by RUC.
    * GET /sunatv1/consultar-ruc/{ruc}
    */
-  async consultarRuc(ruc: string | number): Promise<ConsultarRucResponse> {
+  async lookupTaxpayer(ruc: string | number): Promise<TaxpayerLookupResponse> {
     const url = `${this.baseUrl}/sunatv1/consultar-ruc/${ruc}`;
-    return this.request<ConsultarRucResponse>('GET', url);
+    const wire = await this.request<TaxpayerLookupWireResponse>('GET', url);
+    return fromWireTaxpayerLookupResponse(wire);
   }
 
   /**
-   * Consulta el domicilio fiscal o los establecimientos anexos de un RUC.
-   * GET /sunatv1/locales-establecimientos/{ruc}/{tipo_consulta}
+   * Looks up the fiscal address or the annexed establishments of a RUC.
+   * GET /sunatv1/locales-establecimientos/{ruc}/{type}
    *
-   * @param tipoConsulta 1 = Domicilio fiscal, 2 = Establecimientos anexos
+   * @param queryType 1 = fiscal address, 2 = annexed establishments
    */
-  async consultarLocalesEstablecimientos(
+  async lookupEstablishments(
     ruc: string | number,
-    tipoConsulta: TipoConsultaLocal | number,
-  ): Promise<LocalesEstablecimientosResponse> {
-    const url = `${this.baseUrl}/sunatv1/locales-establecimientos/${ruc}/${tipoConsulta}`;
-    return this.request<LocalesEstablecimientosResponse>('GET', url);
+    queryType: EstablishmentQueryType | number,
+  ): Promise<EstablishmentLookupResponse> {
+    const url = `${this.baseUrl}/sunatv1/locales-establecimientos/${ruc}/${queryType}`;
+    const wire = await this.request<EstablishmentLookupWireResponse>(
+      'GET',
+      url,
+    );
+    return fromWireEstablishmentLookupResponse(wire);
   }
 
   /**
-   * Consulta los datos de una persona natural a partir de su DNI.
+   * Looks up natural-person data by DNI.
    * GET /sunatv1/consultar-personas/{dni}
    */
-  async consultarDni(dni: string | number): Promise<ConsultarDniResponse> {
+  async lookupPerson(
+    dni: string | number,
+  ): Promise<NaturalPersonLookupResponse> {
     const url = `${this.baseUrl}/sunatv1/consultar-personas/${dni}`;
-    return this.request<ConsultarDniResponse>('GET', url);
+    const wire = await this.request<NaturalPersonLookupWireResponse>(
+      'GET',
+      url,
+    );
+    return fromWireNaturalPersonLookupResponse(wire);
   }
 
-  /* ============================================================
-   * Tipo de cambio
-   * ============================================================ */
-
   /**
-   * Obtiene el tipo de cambio SUNAT (compra/venta) para un año y mes dados.
+   * Gets the SUNAT exchange rate (buy/sell) for a given year and month.
    * POST /sunatv1/tipo-cambio
    */
-  async obtenerTipoCambio(
-    params: TipoCambioRequest,
-  ): Promise<TipoCambioResponse> {
+  async getExchangeRate(
+    params: ExchangeRateRequest,
+  ): Promise<ExchangeRateResponse> {
     const url = `${this.baseUrl}/sunatv1/tipo-cambio`;
-    const body: TipoCambioRequest = {
-      token: this.businessToken,
-      ...params,
-    };
-    return this.request<TipoCambioResponse>('POST', url, body);
-  }
-
-  /* ============================================================
-   * Emisión de Guías de Remisión
-   * ============================================================ */
-
-  /**
-   * Emite una guía de remisión (remitente público, remitente privado o
-   * transportista). El "tipo" de guía depende exclusivamente de los
-   * campos incluidos en el payload; ver README para ejemplos de cada caso.
-   * POST /v1/sunat/guia-remision
-   */
-  async emitirGuiaRemision(
-    payload: GuiaRemisionRequest,
-  ): Promise<GuiaRemisionResponse> {
-    const url = `${this.baseUrl}/v1/sunat/guia-remision`;
-    return this.request<GuiaRemisionResponse>('POST', url, payload);
-  }
-
-  /** Alias semántico de {@link emitirGuiaRemision} para remitente público. */
-  async emitirGuiaRemisionRemitentePublico(
-    payload: GuiaRemisionRequest,
-  ): Promise<GuiaRemisionResponse> {
-    return this.emitirGuiaRemision(payload);
-  }
-
-  /** Alias semántico de {@link emitirGuiaRemision} para remitente privado. */
-  async emitirGuiaRemisionRemitentePrivado(
-    payload: GuiaRemisionRequest,
-  ): Promise<GuiaRemisionResponse> {
-    return this.emitirGuiaRemision(payload);
-  }
-
-  /** Alias semántico de {@link emitirGuiaRemision} para transportista. */
-  async emitirGuiaRemisionTransportista(
-    payload: GuiaRemisionRequest,
-  ): Promise<GuiaRemisionResponse> {
-    return this.emitirGuiaRemision(payload);
-  }
-
-  /**
-   * Consulta el estado de un ticket generado al emitir una guía de remisión.
-   * POST /v1/sunat/guia-remision/ticket-status
-   */
-  async consultarTicketGuiaRemision(
-    payload: GuiaRemisionTicketStatusRequest,
-  ): Promise<GuiaRemisionTicketStatusResponse> {
-    const url = `${this.baseUrl}/v1/sunat/guia-remision/ticket-status`;
-    return this.request<GuiaRemisionTicketStatusResponse>(
+    const body: ExchangeRateWireRequest = toWireExchangeRateRequest(
+      params,
+      this.businessToken,
+    );
+    const wire = await this.request<ExchangeRateWireResponse>(
       'POST',
       url,
-      payload,
+      body,
     );
+    return fromWireExchangeRateResponse(wire);
   }
 
   /* ============================================================
-   * Emisión de CPE (Comprobantes de Pago Electrónicos)
+   * Remittance guides
    * ============================================================ */
 
   /**
-   * Genera un comprobante de pago electrónico (Factura al contado o al
-   * crédito). El tipo de operación depende del contenido de
-   * `detalle_forma_pago`: un único ítem "Contado" o "Credito" + cuotas.
-   * POST /v1/sunat/generar-cpe
+   * Issues a remittance guide (public sender, private sender or carrier).
+   * The guide "type" depends exclusively on which payload fields are
+   * included; see the README for an example of each case.
+   * POST /v1/sunat/guia-remision
    */
-  async generarCpe(payload: GenerarCpeRequest): Promise<GenerarCpeResponse> {
-    const url = `${this.baseUrl}/v1/sunat/generar-cpe`;
-    return this.request<GenerarCpeResponse>('POST', url, payload);
+  async issueRemittanceGuide(
+    payload: RemittanceGuideRequest,
+  ): Promise<RemittanceGuideResponse> {
+    const url = `${this.baseUrl}/v1/sunat/guia-remision`;
+    const body = toWireRemittanceGuideRequest(payload);
+    const wire = await this.request<RemittanceGuideWireResponse>(
+      'POST',
+      url,
+      body,
+    );
+    return fromWireRemittanceGuideResponse(wire);
   }
 
-  /** Alias semántico de {@link generarCpe} para facturación al contado. */
-  async generarFacturaContado(
-    payload: GenerarCpeRequest,
-  ): Promise<GenerarCpeResponse> {
-    return this.generarCpe(payload);
-  }
-
-  /** Alias semántico de {@link generarCpe} para facturación al crédito. */
-  async generarFacturaCredito(
-    payload: GenerarCpeRequest,
-  ): Promise<GenerarCpeResponse> {
-    return this.generarCpe(payload);
+  /**
+   * Queries the status of a ticket generated when issuing a guide.
+   * POST /v1/sunat/guia-remision/ticket-status
+   */
+  async getRemittanceGuideTicketStatus(
+    payload: RemittanceGuideTicketStatusRequest,
+  ): Promise<RemittanceGuideTicketStatusResponse> {
+    const url = `${this.baseUrl}/v1/sunat/guia-remision/ticket-status`;
+    const body = toWireRemittanceGuideTicketStatusRequest(payload);
+    const wire = await this.request<RemittanceGuideWireResponse>(
+      'POST',
+      url,
+      body,
+    );
+    return fromWireRemittanceGuideResponse(wire);
   }
 
   /* ============================================================
-   * Helpers privados
+   * Electronic vouchers (CPE)
+   * ============================================================ */
+
+  /**
+   * Generates an electronic payment voucher (cash or credit invoice).
+   * The operation type depends on the content of `paymentTerms`:
+   * a single "Contado" entry, or "Credito" + installments.
+   * POST /v1/sunat/generar-cpe
+   */
+  async generateVoucher(
+    payload: GenerateVoucherRequest,
+  ): Promise<GenerateVoucherResponse> {
+    const url = `${this.baseUrl}/v1/sunat/generar-cpe`;
+    const body = toWireGenerateVoucherRequest(payload);
+    const wire = await this.request<GenerateVoucherWireResponse>(
+      'POST',
+      url,
+      body,
+    );
+    return fromWireGenerateVoucherResponse(wire);
+  }
+
+  /* ============================================================
+   * Helpers
    * ============================================================ */
 
   private async request<T>(
@@ -209,7 +236,7 @@ export class SDKVisioner7Service {
       observable.pipe(
         catchError((error: AxiosError) => {
           this.logger.error(
-            `Error al llamar a ${url}: ${error.message}`,
+            `Error calling ${url}: ${error.message}`,
             error.stack,
           );
           throw new SDKVisioner7ApiException(
@@ -233,12 +260,9 @@ export class SDKVisioner7Service {
         (anyData.msj_sunat as string) ||
         (anyData.message as string) ||
         (anyData.error as string) ||
-        'Error desconocido al consultar el servicio SUNAT'
+        'Unknown error while querying the SUNAT service'
       );
     }
-    return 'Error desconocido al consultar el servicio SUNAT';
+    return 'Unknown error while querying the SUNAT service';
   }
 }
-
-/** @deprecated Usa {@link SDKVisioner7Service} en su lugar. */
-export const SunatService = SDKVisioner7Service;
