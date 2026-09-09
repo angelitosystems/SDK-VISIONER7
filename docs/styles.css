@@ -86,6 +86,11 @@ h1 .accent { color: var(--lime-deep); }
 .doc-section ul, .doc-section ol { color: var(--muted); font-size: 14.5px; padding-left: 20px; }
 .doc-section li { margin-bottom: 6px; }
 code { background: #e9eee8; font-family: var(--mono); font-size: .86em; padding: 2px 5px; }
+/* el selector "code" de arriba es para código en línea dentro de párrafos;
+   sin este reset, ese mismo fondo claro + padding se aplicaba también al
+   <code> dentro de <pre>, y al ser inline se repetía por cada línea,
+   generando las barras claras que tapaban el texto en los bloques oscuros */
+pre code, .code-block code { background: none; padding: 0; font-size: 1em; }
 
 /* code blocks */
 .code-block { background: #182a27; color: #e1eadb; margin-top: 22px; overflow: hidden; }
@@ -170,6 +175,26 @@ code { background: #e9eee8; font-family: var(--mono); font-size: .86em; padding:
 
 footer { border-top: 1px solid var(--line); color: var(--muted); display: flex; flex-wrap: wrap; font-size: 11px; gap: 10px 28px; justify-content: space-between; margin: 0 auto; max-width: 1140px; padding: 24px 32px 50px; }
 footer a { color: var(--ink); font-weight: 700; }
+
+/* ---------- badge de estrellas en el topbar ---------- */
+.star-badge { color: var(--orange-deep); font-family: var(--mono); font-size: 11px; font-weight: 700; }
+.star-count { font-variant-numeric: tabular-nums; }
+
+/* ---------- modal "dar estrella" ---------- */
+.stars-modal-overlay { align-items: center; background: rgba(20, 35, 33, .55); display: flex; inset: 0; justify-content: center; padding: 24px; position: fixed; z-index: 50; }
+.stars-modal-overlay[hidden] { display: none; }
+.stars-modal { background: var(--paper); border: 1px solid var(--ink); box-shadow: 8px 8px 0 var(--ink); max-width: 420px; padding: 32px 30px 28px; position: relative; width: 100%; }
+.stars-modal-close { background: none; border: 1px solid var(--line); color: var(--muted); cursor: pointer; font-size: 12px; height: 26px; position: absolute; right: 14px; top: 14px; width: 26px; }
+.stars-modal-close:hover { border-color: var(--ink); color: var(--ink); }
+.stars-modal-kicker { color: var(--orange-deep); font-family: var(--mono); font-size: 11.5px; letter-spacing: .02em; margin: 0 0 10px; }
+.stars-modal h2 { font-size: 22px; letter-spacing: -.03em; line-height: 1.15; margin: 0 0 12px; padding-right: 20px; }
+.stars-modal-text { color: var(--muted); font-size: 13.5px; margin: 0 0 18px; }
+.stars-modal-count { align-items: baseline; display: flex; gap: 8px; margin-bottom: 22px; }
+.star-count-big { color: var(--lime-deep); font-family: var(--mono); font-size: 26px; font-weight: 500; }
+.stars-modal-count span:last-child { color: var(--muted); font-family: var(--mono); font-size: 11px; }
+.stars-modal-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.made-with-love { color: var(--muted); font-family: var(--mono); font-size: 11px; margin: 22px 0 0; text-align: center; }
+.made-with-love strong { color: var(--ink); }
 
 @media (max-width: 800px) {
   .topbar { padding: 20px; } .topnav a:not(.nav-link) { display: none; }

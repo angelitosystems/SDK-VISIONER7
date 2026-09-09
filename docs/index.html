@@ -20,7 +20,7 @@
       <a href="#instalacion">Instalación</a>
       <a href="#configuracion">Configuración</a>
       <a href="#referencia">Referencia</a>
-      <a class="nav-link" href="https://github.com/angelitosystems/SDK-VISIONER7" target="_blank" rel="noreferrer">GitHub<span class="ext" aria-hidden="true">↗</span></a>
+      <a class="nav-link" href="https://github.com/angelitosystems/SDK-VISIONER7" target="_blank" rel="noreferrer">GitHub<span class="ext" aria-hidden="true">↗</span> <span class="star-badge" id="starBadgeTop" aria-hidden="true">★ <span class="star-count" id="starCountTop">…</span></span></a>
     </nav>
   </header>
 
@@ -519,6 +519,83 @@ console.log(factura.msj_sunat, factura.archivo);</code></pre>
     <span>Integración independiente para servicios autorizados</span>
     <a href="https://github.com/angelitosystems/SDK-VISIONER7" target="_blank" rel="noreferrer">Código fuente↗</a>
   </footer>
+
+  <div class="stars-modal-overlay" id="starsModalOverlay" role="dialog" aria-modal="true" aria-labelledby="starsModalTitle" hidden>
+    <div class="stars-modal">
+      <button class="stars-modal-close" id="starsModalClose" aria-label="Cerrar">✕</button>
+      <p class="stars-modal-kicker">Apoya el proyecto</p>
+      <h2 id="starsModalTitle">¿Te sirvió el SDK? Déjanos una estrella ⭐</h2>
+      <p class="stars-modal-text">Este paquete es mantenido de forma independiente. Una estrella en GitHub ayuda a que más gente lo encuentre.</p>
+      <div class="stars-modal-count"><span class="star-count-big" id="starCountModal">…</span><span>estrellas actuales</span></div>
+      <div class="stars-modal-actions">
+        <a class="button button-primary" href="https://github.com/angelitosystems/SDK-VISIONER7" target="_blank" rel="noreferrer" id="starsModalCta">Dar estrella en GitHub</a>
+        <button class="button button-secondary" id="starsModalDismiss" type="button">Ahora no</button>
+      </div>
+      <p class="made-with-love">Hecho con <span aria-hidden="true">❤</span> por <strong>Angelito Systems S.A.C.</strong></p>
+    </div>
+  </div>
+
+  <script>
+    // ---- estrellas de GitHub: cuenta actual + modal periódico ----
+    (function () {
+      const REPO = 'angelitosystems/SDK-VISIONER7';
+      const STORAGE_KEY = 'v7docs.starsModalDismissedAt';
+      const DISMISS_COOLDOWN_MS = 24 * 60 * 60 * 1000; // no insistir antes de 24h tras cerrar
+      const FIRST_SHOW_DELAY_MS = 45 * 1000;            // primera aparición
+      const REPEAT_INTERVAL_MS = 5 * 60 * 1000;         // reaparece cada 5 min mientras sigan en la página
+
+      const countEls = [document.getElementById('starCountTop'), document.getElementById('starCountModal')];
+      let starCount = null;
+
+      function paintCount() {
+        countEls.forEach((el) => { if (el) el.textContent = starCount === null ? '—' : starCount.toLocaleString('es-PE'); });
+      }
+
+      async function fetchStars() {
+        try {
+          const res = await fetch(`https://api.github.com/repos/${REPO}`, { headers: { Accept: 'application/vnd.github+json' } });
+          if (!res.ok) throw new Error('respuesta no válida');
+          const data = await res.json();
+          starCount = typeof data.stargazers_count === 'number' ? data.stargazers_count : null;
+        } catch (e) {
+          starCount = null; // sin conexión o límite de API: se muestra "—" en vez de romper la página
+        } finally {
+          paintCount();
+        }
+      }
+
+      const overlay = document.getElementById('starsModalOverlay');
+      const closeBtn = document.getElementById('starsModalClose');
+      const dismissBtn = document.getElementById('starsModalDismiss');
+      const cta = document.getElementById('starsModalCta');
+
+      function recentlyDismissed() {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return false;
+        return (Date.now() - Number(raw)) < DISMISS_COOLDOWN_MS;
+      }
+
+      function showModal() {
+        if (recentlyDismissed()) return;
+        overlay.hidden = false;
+      }
+
+      function hideModal(remember) {
+        overlay.hidden = true;
+        if (remember) localStorage.setItem(STORAGE_KEY, String(Date.now()));
+      }
+
+      closeBtn.addEventListener('click', () => hideModal(true));
+      dismissBtn.addEventListener('click', () => hideModal(true));
+      cta.addEventListener('click', () => hideModal(true));
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) hideModal(true); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !overlay.hidden) hideModal(true); });
+
+      fetchStars();
+      setTimeout(showModal, FIRST_SHOW_DELAY_MS);
+      setInterval(showModal, REPEAT_INTERVAL_MS);
+    })();
+  </script>
 
   <script>
     // copiar código: usa data-copy si existe, o el contenido del bloque de código adyacente
