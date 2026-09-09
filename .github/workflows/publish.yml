@@ -76,8 +76,14 @@ jobs:
       # ----------------------------------------
       - name: Update package version
         run: |
-          npm version "${{ inputs.version }}" \
-            --no-git-tag-version
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+
+          if [[ "$CURRENT_VERSION" == "${{ inputs.version }}" ]]; then
+            echo "Package is already at version $CURRENT_VERSION"
+          else
+            npm version "${{ inputs.version }}" \
+              --no-git-tag-version
+          fi
 
       # ----------------------------------------
       # 8. Build
@@ -99,8 +105,12 @@ jobs:
         run: |
           git add package.json package-lock.json
 
-          git commit \
-            -m "chore(release): v${{ inputs.version }}"
+          if git diff --cached --quiet; then
+            echo "No package version changes to commit"
+          else
+            git commit \
+              -m "chore(release): v${{ inputs.version }}"
+          fi
 
       # ----------------------------------------
       # 11. Create Git tag
