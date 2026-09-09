@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { SunatModule } from '@angelitosystems/sdk-visioner7';
+import { SDKVisioner7Module } from '@angelitosystems/sdk-visioner7';
 import { AppController } from './app.controller';
 
 @Module({
@@ -8,19 +8,19 @@ import { AppController } from './app.controller';
     ConfigModule.forRoot({ isGlobal: true }),
 
     // Opción 1: configuración síncrona
-    // SunatModule.forRoot({
-    //   authToken: process.env.SUNAT_AUTH_TOKEN,
+    // SDKVisioner7Module.forRoot({
+    //   authToken: process.env.SDK_VISIONER7_AUTH_TOKEN,
     //   businessToken: 'v7',
     // }),
 
     // Opción 2: configuración asíncrona (recomendada)
-    SunatModule.forRootAsync({
+    SDKVisioner7Module.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        baseUrl: config.get<string>('SUNAT_BASE_URL'),
-        authToken: config.get<string>('SUNAT_AUTH_TOKEN'),
-        businessToken: config.get<string>('SUNAT_BUSINESS_TOKEN', 'v7'),
+        baseUrl: config.get<string>('SDK_VISIONER7_BASE_URL'),
+        authToken: config.get<string>('SDK_VISIONER7_AUTH_TOKEN'),
+        businessToken: config.get<string>('SDK_VISIONER7_BUSINESS_TOKEN', 'v7'),
         timeout: 20000,
       }),
     }),

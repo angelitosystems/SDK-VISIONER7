@@ -4,7 +4,7 @@ import { HttpException, HttpStatus } from '@nestjs/common';
  * Excepción lanzada cuando la API de Visioner7/SUNAT responde con un
  * error HTTP o con un `success: false` / `cod_sunat` distinto de "0".
  */
-export class SunatApiException extends HttpException {
+export class SDKVisioner7ApiException extends HttpException {
   public readonly providerResponse: unknown;
   public readonly endpoint: string;
 
@@ -26,3 +26,6 @@ export class SunatApiException extends HttpException {
     this.endpoint = endpoint;
   }
 }
+
+/** @deprecated Usa {@link SDKVisioner7ApiException} en su lugar. */
+export const SunatApiException = SDKVisioner7ApiException;

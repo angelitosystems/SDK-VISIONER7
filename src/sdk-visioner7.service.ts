@@ -6,9 +6,9 @@ import {
   DEFAULT_BASE_URL,
   DEFAULT_BUSINESS_TOKEN,
   DEFAULT_TIMEOUT,
-  SUNAT_MODULE_OPTIONS,
+  SDK_VISIONER7_MODULE_OPTIONS,
 } from './constants.js';
-import { SunatApiException } from './exceptions/sunat-api.exception.js';
+import { SDKVisioner7ApiException } from './exceptions/sdk-visioner7-api.exception.js';
 import {
   ConsultarDniResponse,
   ConsultarRucResponse,
@@ -19,15 +19,15 @@ import {
   GuiaRemisionTicketStatusRequest,
   GuiaRemisionTicketStatusResponse,
   LocalesEstablecimientosResponse,
-  SunatModuleOptions,
+  SDKVisioner7ModuleOptions,
   TipoCambioRequest,
   TipoCambioResponse,
   TipoConsultaLocal,
 } from './interfaces/index.js';
 
 @Injectable()
-export class SunatService {
-  private readonly logger = new Logger(SunatService.name);
+export class SDKVisioner7Service {
+  private readonly logger = new Logger(SDKVisioner7Service.name);
   private readonly baseUrl: string;
   private readonly authToken?: string;
   private readonly businessToken: string;
@@ -35,7 +35,8 @@ export class SunatService {
 
   constructor(
     private readonly httpService: HttpService,
-    @Inject(SUNAT_MODULE_OPTIONS) private readonly options: SunatModuleOptions,
+    @Inject(SDK_VISIONER7_MODULE_OPTIONS)
+    private readonly options: SDKVisioner7ModuleOptions,
   ) {
     this.baseUrl = (options.baseUrl ?? DEFAULT_BASE_URL).replace(/\/+$/, '');
     this.authToken = options.authToken;
@@ -211,7 +212,7 @@ export class SunatService {
             `Error al llamar a ${url}: ${error.message}`,
             error.stack,
           );
-          throw new SunatApiException(
+          throw new SDKVisioner7ApiException(
             error.response?.data
               ? this.extractErrorMessage(error.response.data)
               : error.message,
@@ -238,3 +239,6 @@ export class SunatService {
     return 'Error desconocido al consultar el servicio SUNAT';
   }
 }
+
+/** @deprecated Usa {@link SDKVisioner7Service} en su lugar. */
+export const SunatService = SDKVisioner7Service;

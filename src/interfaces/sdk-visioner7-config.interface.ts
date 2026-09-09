@@ -1,7 +1,7 @@
 /**
- * Opciones de configuración del módulo SunatModule.
+ * Opciones de configuración del módulo SDKVisioner7Module.
  */
-export interface SunatModuleOptions {
+export interface SDKVisioner7ModuleOptions {
   /**
    * URL base del servicio (por defecto: https://service1.visioner7-api.com/api)
    */
@@ -28,10 +28,16 @@ export interface SunatModuleOptions {
 /**
  * Factory asíncrona para configurar el módulo (ej. usando ConfigService).
  */
-export interface SunatModuleAsyncOptions {
+export interface SDKVisioner7ModuleAsyncOptions {
   imports?: any[];
   useFactory: (
     ...args: any[]
-  ) => Promise<SunatModuleOptions> | SunatModuleOptions;
+  ) => Promise<SDKVisioner7ModuleOptions> | SDKVisioner7ModuleOptions;
   inject?: any[];
 }
+
+/** @deprecated Usa {@link SDKVisioner7ModuleOptions} en su lugar. */
+export type SunatModuleOptions = SDKVisioner7ModuleOptions;
+
+/** @deprecated Usa {@link SDKVisioner7ModuleAsyncOptions} en su lugar. */
+export type SunatModuleAsyncOptions = SDKVisioner7ModuleAsyncOptions;

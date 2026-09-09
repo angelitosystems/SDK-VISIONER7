@@ -65,7 +65,7 @@
     <section class="signal-strip" aria-label="Resumen del paquete">
       <div><strong>11 operaciones</strong><span>consultas, guías y comprobantes</span></div>
       <div><strong>NestJS nativo</strong><span>forRoot y forRootAsync</span></div>
-      <div><strong>Errores centralizados</strong><span>SunatApiException</span></div>
+      <div><strong>Errores centralizados</strong><span>SDKVisioner7ApiException</span></div>
       <div><strong>MIT sugerida</strong><span>uso privado o distribuido</span></div>
     </section>
 
@@ -120,7 +120,7 @@ npm install @nestjs/axios axios reflect-metadata rxjs">Copiar</button></div>
             <pre><code>npm install @angelitosystems/sdk-visioner7
 npm install @nestjs/axios axios reflect-metadata rxjs</code></pre>
           </div>
-          <p>Si el proyecto vive dentro de un monorepo o como código interno, también puede integrarse como librería privada, por ejemplo en <code>libs/sunat-sdk/</code>, o distribuirse mediante un registro privado de paquetes.</p>
+          <p>Si el proyecto vive dentro de un monorepo o como código interno, también puede integrarse como librería privada, por ejemplo en <code>libs/sdk-visioner7/</code>, o distribuirse mediante un registro privado de paquetes.</p>
         </section>
 
         <section class="doc-section" id="requisitos">
@@ -137,7 +137,7 @@ npm install @nestjs/axios axios reflect-metadata rxjs</code></pre>
         <section class="doc-section" id="configuracion">
           <p class="section-kicker">Configuración</p>
           <h2>Registra el módulo</h2>
-          <p>Usa <code>forRoot</code> para una configuración directa, o <code>forRootAsync</code> cuando las credenciales provienen de variables de entorno o de un <code>ConfigService</code>. El módulo puede registrarse como global para evitar importaciones repetidas donde se use <code>SunatService</code>.</p>
+          <p>Usa <code>forRoot</code> para una configuración directa, o <code>forRootAsync</code> cuando las credenciales provienen de variables de entorno o de un <code>ConfigService</code>. El módulo puede registrarse como global para evitar importaciones repetidas donde se use <code>SDKVisioner7Service</code>.</p>
 
           <div class="tab-group">
             <div class="tab-bar" role="tablist">
@@ -148,14 +148,14 @@ npm install @nestjs/axios axios reflect-metadata rxjs</code></pre>
               <div class="code-block">
                 <div class="code-head"><span>app.module.ts</span><button class="copy-button">Copiar</button></div>
                 <pre><code><span class="code-keyword">import</span> { Module } <span class="code-keyword">from</span> <span class="code-string">'@nestjs/common'</span>;
-<span class="code-keyword">import</span> { SunatModule } <span class="code-keyword">from</span> <span class="code-string">'@angelitosystems/sdk-visioner7'</span>;
+<span class="code-keyword">import</span> { SDKVisioner7Module } <span class="code-keyword">from</span> <span class="code-string">'@angelitosystems/sdk-visioner7'</span>;
 
 <span class="code-decorator">@Module</span>({
   imports: [
-    SunatModule.forRoot({
+    SDKVisioner7Module.forRoot({
       baseUrl: <span class="code-string">'https://visioner7-api.com/api'</span>,
-      authToken: process.env.SUNAT_AUTH_TOKEN,
-      businessToken: process.env.SUNAT_BUSINESS_TOKEN,
+      authToken: process.env.SDK_VISIONER7_AUTH_TOKEN,
+      businessToken: process.env.SDK_VISIONER7_BUSINESS_TOKEN,
       timeout: <span class="code-string">15000</span>,
     }),
   ],
@@ -177,19 +177,19 @@ npm install @nestjs/axios axios reflect-metadata rxjs</code></pre>
                 <div class="code-head"><span>app.module.ts</span><button class="copy-button">Copiar</button></div>
                 <pre><code><span class="code-keyword">import</span> { Module } <span class="code-keyword">from</span> <span class="code-string">'@nestjs/common'</span>;
 <span class="code-keyword">import</span> { ConfigModule, ConfigService } <span class="code-keyword">from</span> <span class="code-string">'@nestjs/config'</span>;
-<span class="code-keyword">import</span> { SunatModule } <span class="code-keyword">from</span> <span class="code-string">'@angelitosystems/sdk-visioner7'</span>;
+<span class="code-keyword">import</span> { SDKVisioner7Module } <span class="code-keyword">from</span> <span class="code-string">'@angelitosystems/sdk-visioner7'</span>;
 
 <span class="code-decorator">@Module</span>({
   imports: [
     ConfigModule.forRoot({ isGlobal: <span class="code-string">true</span> }),
 
-    SunatModule.forRootAsync({
+    SDKVisioner7Module.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        baseUrl: config.get&lt;string&gt;(<span class="code-string">'SUNAT_BASE_URL'</span>),
-        authToken: config.get&lt;string&gt;(<span class="code-string">'SUNAT_AUTH_TOKEN'</span>),
-        businessToken: config.get&lt;string&gt;(<span class="code-string">'SUNAT_BUSINESS_TOKEN'</span>),
+        baseUrl: config.get&lt;string&gt;(<span class="code-string">'SDK_VISIONER7_BASE_URL'</span>),
+        authToken: config.get&lt;string&gt;(<span class="code-string">'SDK_VISIONER7_AUTH_TOKEN'</span>),
+        businessToken: config.get&lt;string&gt;(<span class="code-string">'SDK_VISIONER7_BUSINESS_TOKEN'</span>),
         timeout: <span class="code-string">15000</span>,
       }),
     }),
@@ -207,27 +207,27 @@ npm install @nestjs/axios axios reflect-metadata rxjs</code></pre>
           <p>Nunca almacenes credenciales reales directamente en el código fuente. Usa variables de entorno, un secret manager o los secretos administrados por tu proveedor de infraestructura.</p>
           <div class="code-block">
             <div class="code-head"><span>.env</span><button class="copy-button">Copiar</button></div>
-            <pre><code>SUNAT_BASE_URL=https://visioner7-api.com/api
-SUNAT_AUTH_TOKEN=your_token_here
-SUNAT_BUSINESS_TOKEN=your_business_token_here</code></pre>
+            <pre><code>SDK_VISIONER7_BASE_URL=https://visioner7-api.com/api
+SDK_VISIONER7_AUTH_TOKEN=your_token_here
+SDK_VISIONER7_BUSINESS_TOKEN=your_business_token_here</code></pre>
           </div>
         </section>
 
         <section class="doc-section" id="uso">
           <p class="section-kicker">Uso</p>
           <h2>Inyecta el servicio donde lo necesites</h2>
-          <p>Una vez registrado el módulo, <code>SunatService</code> queda disponible para cualquier servicio de dominio o controlador de NestJS.</p>
+          <p>Una vez registrado el módulo, <code>SDKVisioner7Service</code> queda disponible para cualquier servicio de dominio o controlador de NestJS.</p>
           <div class="code-block">
             <div class="code-head"><span>facturacion.service.ts</span><button class="copy-button">Copiar</button></div>
             <pre><code><span class="code-keyword">import</span> { Injectable } <span class="code-keyword">from</span> <span class="code-string">'@nestjs/common'</span>;
-<span class="code-keyword">import</span> { SunatService } <span class="code-keyword">from</span> <span class="code-string">'@angelitosystems/sdk-visioner7'</span>;
+<span class="code-keyword">import</span> { SDKVisioner7Service } <span class="code-keyword">from</span> <span class="code-string">'@angelitosystems/sdk-visioner7'</span>;
 
 <span class="code-decorator">@Injectable</span>()
 <span class="code-keyword">export class</span> FacturacionService {
-  <span class="code-keyword">constructor</span>(<span class="code-keyword">private readonly</span> sunatService: SunatService) {}
+  <span class="code-keyword">constructor</span>(<span class="code-keyword">private readonly</span> sdkVisioner7Service: SDKVisioner7Service) {}
 
   <span class="code-keyword">async</span> validarCliente(ruc: string) {
-    <span class="code-keyword">const</span> response = <span class="code-keyword">await</span> this.sunatService.consultarRuc(ruc);
+    <span class="code-keyword">const</span> response = <span class="code-keyword">await</span> this.sdkVisioner7Service.consultarRuc(ruc);
     <span class="code-keyword">return</span> response.comprobante;
   }
 }</code></pre>
@@ -252,7 +252,7 @@ SUNAT_BUSINESS_TOKEN=your_business_token_here</code></pre>
               <summary>Ver ejemplo</summary>
               <div class="code-block">
                 <div class="code-head"><span>Ejemplo</span><button class="copy-button">Copiar</button></div>
-                <pre><code><span class="code-keyword">const</span> response = <span class="code-keyword">await</span> sunatService.consultarRuc(<span class="code-string">'20611187719'</span>);
+                <pre><code><span class="code-keyword">const</span> response = <span class="code-keyword">await</span> sdkVisioner7Service.consultarRuc(<span class="code-string">'20611187719'</span>);
 console.log(response.comprobante.desRazonSocial);</code></pre>
               </div>
             </details>
@@ -265,7 +265,7 @@ console.log(response.comprobante.desRazonSocial);</code></pre>
               <summary>Ver ejemplo</summary>
               <div class="code-block">
                 <div class="code-head"><span>Ejemplo</span><button class="copy-button">Copiar</button></div>
-                <pre><code><span class="code-keyword">const</span> domicilio = <span class="code-keyword">await</span> sunatService.consultarLocalesEstablecimientos(
+                <pre><code><span class="code-keyword">const</span> domicilio = <span class="code-keyword">await</span> sdkVisioner7Service.consultarLocalesEstablecimientos(
   <span class="code-string">'20611187719'</span>,
   TipoConsultaLocal.DOMICILIO_FISCAL,
 );</code></pre>
@@ -280,7 +280,7 @@ console.log(response.comprobante.desRazonSocial);</code></pre>
               <summary>Ver ejemplo</summary>
               <div class="code-block">
                 <div class="code-head"><span>Ejemplo</span><button class="copy-button">Copiar</button></div>
-                <pre><code><span class="code-keyword">const</span> persona = <span class="code-keyword">await</span> sunatService.consultarDni(<span class="code-string">'10292315'</span>);
+                <pre><code><span class="code-keyword">const</span> persona = <span class="code-keyword">await</span> sdkVisioner7Service.consultarDni(<span class="code-string">'10292315'</span>);
 console.log(persona.comprobante.nomPerNat);</code></pre>
               </div>
             </details>
@@ -293,7 +293,7 @@ console.log(persona.comprobante.nomPerNat);</code></pre>
               <summary>Ver ejemplo</summary>
               <div class="code-block">
                 <div class="code-head"><span>Ejemplo</span><button class="copy-button">Copiar</button></div>
-                <pre><code><span class="code-keyword">const</span> response = <span class="code-keyword">await</span> sunatService.obtenerTipoCambio({ anio: <span class="code-string">2025</span>, mes: <span class="code-string">7</span> });
+                <pre><code><span class="code-keyword">const</span> response = <span class="code-keyword">await</span> sdkVisioner7Service.obtenerTipoCambio({ anio: <span class="code-string">2025</span>, mes: <span class="code-string">7</span> });
 
 <span class="code-keyword">const</span> compra = response.data.find(item => item.codTipo === <span class="code-string">'C'</span>)?.valTipo;
 <span class="code-keyword">const</span> venta = response.data.find(item => item.codTipo === <span class="code-string">'V'</span>)?.valTipo;</code></pre>
@@ -310,7 +310,7 @@ console.log(persona.comprobante.nomPerNat);</code></pre>
               <summary>Ver ejemplo</summary>
               <div class="code-block">
                 <div class="code-head"><span>Ejemplo ilustrativo</span><button class="copy-button">Copiar</button></div>
-                <pre><code><span class="code-keyword">const</span> resultado = <span class="code-keyword">await</span> sunatService.emitirGuiaRemision({
+                <pre><code><span class="code-keyword">const</span> resultado = <span class="code-keyword">await</span> sdkVisioner7Service.emitirGuiaRemision({
   TIPO_PROCESO: <span class="code-string">'1'</span>,
   NRO_DOCUMENTO_EMPRESA: <span class="code-string">'YOUR_RUC'</span>,
   USUARIO_SOL_EMPRESA: <span class="code-string">'YOUR_SOL_USER'</span>,
@@ -336,7 +336,7 @@ console.log(persona.comprobante.nomPerNat);</code></pre>
               <summary>Ver ejemplo</summary>
               <div class="code-block">
                 <div class="code-head"><span>Ejemplo</span><button class="copy-button">Copiar</button></div>
-                <pre><code><span class="code-keyword">const</span> estado = <span class="code-keyword">await</span> sunatService.consultarTicketGuiaRemision({
+                <pre><code><span class="code-keyword">const</span> estado = <span class="code-keyword">await</span> sdkVisioner7Service.consultarTicketGuiaRemision({
   TICKET: <span class="code-string">'YOUR_TICKET'</span>,
   NRO_DOCUMENTO_EMPRESA: <span class="code-string">'YOUR_RUC'</span>,
   USUARIO_SOL_EMPRESA: <span class="code-string">'YOUR_SOL_USER'</span>,
@@ -360,7 +360,7 @@ console.log(persona.comprobante.nomPerNat);</code></pre>
               <summary>Ver ejemplo</summary>
               <div class="code-block">
                 <div class="code-head"><span>Ejemplo ilustrativo</span><button class="copy-button">Copiar</button></div>
-                <pre><code><span class="code-keyword">const</span> factura = <span class="code-keyword">await</span> sunatService.generarCpe({
+                <pre><code><span class="code-keyword">const</span> factura = <span class="code-keyword">await</span> sdkVisioner7Service.generarCpe({
   txtTIPO_OPERACION: <span class="code-string">'0101'</span>,
   txtTOTAL_GRAVADAS: <span class="code-string">'305.08'</span>,
   txtSUB_TOTAL: <span class="code-string">'305.08'</span>,
@@ -391,15 +391,15 @@ console.log(factura.msj_sunat, factura.archivo);</code></pre>
         <section class="doc-section" id="errores">
           <p class="section-kicker">Operación</p>
           <h2>Manejo de errores</h2>
-          <p>El SDK centraliza los errores mediante <code>SunatApiException</code>, que extiende <code>HttpException</code> de NestJS, para integrarse con los <code>ExceptionFilter</code> globales de tu aplicación.</p>
+          <p>El SDK centraliza los errores mediante <code>SDKVisioner7ApiException</code>, que extiende <code>HttpException</code> de NestJS, para integrarse con los <code>ExceptionFilter</code> globales de tu aplicación.</p>
           <div class="code-block">
             <div class="code-head"><span>Ejemplo</span><button class="copy-button">Copiar</button></div>
-            <pre><code><span class="code-keyword">import</span> { SunatApiException } <span class="code-keyword">from</span> <span class="code-string">'@angelitosystems/sdk-visioner7'</span>;
+            <pre><code><span class="code-keyword">import</span> { SDKVisioner7ApiException } <span class="code-keyword">from</span> <span class="code-string">'@angelitosystems/sdk-visioner7'</span>;
 
 <span class="code-keyword">try</span> {
-  <span class="code-keyword">await</span> sunatService.consultarRuc(<span class="code-string">'00000000000'</span>);
+  <span class="code-keyword">await</span> sdkVisioner7Service.consultarRuc(<span class="code-string">'00000000000'</span>);
 } <span class="code-keyword">catch</span> (error) {
-  <span class="code-keyword">if</span> (error <span class="code-keyword">instanceof</span> SunatApiException) {
+  <span class="code-keyword">if</span> (error <span class="code-keyword">instanceof</span> SDKVisioner7ApiException) {
     console.error(error.endpoint, error.providerResponse);
   }
   <span class="code-keyword">throw</span> error;
@@ -410,7 +410,7 @@ console.log(factura.msj_sunat, factura.archivo);</code></pre>
         <section class="doc-section" id="arquitectura">
           <p class="section-kicker">Operación</p>
           <h2>Arquitectura recomendada</h2>
-          <p>El frontend no debe comunicarse directamente con el servicio externo usando credenciales privadas. Las credenciales permanecen exclusivamente en el backend, detrás de <code>SunatService</code>.</p>
+          <p>El frontend no debe comunicarse directamente con el servicio externo usando credenciales privadas. Las credenciales permanecen exclusivamente en el backend, detrás de <code>SDKVisioner7Service</code>.</p>
           <div class="flow">
             <div class="flow-row">
               <div class="flow-box">Frontend</div>
@@ -424,14 +424,14 @@ console.log(factura.msj_sunat, factura.archivo);</code></pre>
                 <div class="flow-box">Reportes</div>
               </div>
               <span class="flow-arrow">↓</span>
-              <div class="flow-box core">SunatService</div>
+              <div class="flow-box core">SDKVisioner7Service</div>
               <span class="flow-arrow">↓</span>
               <div class="flow-box">Servicio API contratado</div>
               <span class="flow-arrow">↓</span>
               <div class="flow-box">Operaciones correspondientes</div>
             </div>
           </div>
-          <p class="flow-note">Los distintos servicios de dominio de tu backend hablan con <code>SunatService</code>; solo esa capa conoce el servicio externo.</p>
+          <p class="flow-note">Los distintos servicios de dominio de tu backend hablan con <code>SDKVisioner7Service</code>; solo esa capa conoce el servicio externo.</p>
         </section>
 
         <section class="security-callout" id="seguridad">
@@ -441,7 +441,7 @@ console.log(factura.msj_sunat, factura.archivo);</code></pre>
             <h2>Las credenciales nunca salen del backend</h2>
             <p>No expongas tokens SOL ni credenciales en frontend, JavaScript de navegador, apps móviles sin protección o repositorios públicos. Usa variables de entorno o un secret manager.</p>
             <div class="redacted-list">
-              <span>SUNAT_AUTH_TOKEN</span><span>SUNAT_BUSINESS_TOKEN</span><span>USUARIO_SOL_EMPRESA</span><span>PASS_SOL_EMPRESA</span><span>PAS_FIRMA</span><span>CLAVE_TOKEN</span><span>ID_TOKEN</span>
+              <span>SDK_VISIONER7_AUTH_TOKEN</span><span>SDK_VISIONER7_BUSINESS_TOKEN</span><span>USUARIO_SOL_EMPRESA</span><span>PASS_SOL_EMPRESA</span><span>PAS_FIRMA</span><span>CLAVE_TOKEN</span><span>ID_TOKEN</span>
             </div>
             <div class="code-block compact" style="margin-top:18px;">
               <div class="code-head"><span>.gitignore</span><button class="copy-button">Copiar</button></div>
@@ -476,16 +476,16 @@ console.log(factura.msj_sunat, factura.archivo);</code></pre>
           <div class="tree">@angelitosystems/sdk-visioner7/
 ├── src/
 │   ├── interfaces/
-│   │   ├── sunat-config.interface.ts
+│   │   ├── sdk-visioner7-config.interface.ts
 │   │   ├── consultas.interface.ts
 │   │   ├── guia-remision.interface.ts
 │   │   ├── cpe.interface.ts
 │   │   └── index.ts
 │   ├── exceptions/
-│   │   └── sunat-api.exception.ts
+│   │   └── sdk-visioner7-api.exception.ts
 │   ├── constants.ts
-│   ├── sunat.module.ts
-│   ├── sunat.service.ts
+│   ├── sdk-visioner7.module.ts
+│   ├── sdk-visioner7.service.ts
 │   └── index.ts
 ├── example/
 │   ├── app.module.ts

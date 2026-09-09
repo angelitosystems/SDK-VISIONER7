@@ -50,7 +50,7 @@ Si el proyecto se utiliza dentro de un monorepo o como código interno, también
 Por ejemplo:
 
 ```text
-libs/sunat-sdk/
+libs/sdk-visioner7/
 ```
 
 También puede distribuirse mediante un registro privado de paquetes.
@@ -59,20 +59,22 @@ También puede distribuirse mediante un registro privado de paquetes.
 
 # Configuración
 
+> **Compatibilidad:** los nombres antiguos `SunatModule`, `SunatService` y `SunatApiException` se mantienen como alias obsoletos (deprecated) para facilitar la migración. Se recomienda usar los nuevos nombres `SDKVisioner7Module`, `SDKVisioner7Service` y `SDKVisioner7ApiException`.
+
 ## Opción 1: `forRoot`
 
 Configuración síncrona:
 
 ```ts
 import { Module } from '@nestjs/common';
-import { SunatModule } from '@angelitosystems/sdk-visioner7';
+import { SDKVisioner7Module } from '@angelitosystems/sdk-visioner7';
 
 @Module({
   imports: [
-    SunatModule.forRoot({
+    SDKVisioner7Module.forRoot({
       baseUrl: 'https://visioner7-api.com/api',
-      authToken: process.env.SUNAT_AUTH_TOKEN,
-      businessToken: process.env.SUNAT_BUSINESS_TOKEN,
+      authToken: process.env.SDK_VISIONER7_AUTH_TOKEN,
+      businessToken: process.env.SDK_VISIONER7_BUSINESS_TOKEN,
       timeout: 15000,
     }),
   ],
@@ -100,7 +102,7 @@ Se recomienda utilizar `forRootAsync` cuando las credenciales y configuración p
 ```ts
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { SunatModule } from '@angelitosystems/sdk-visioner7';
+import { SDKVisioner7Module } from '@angelitosystems/sdk-visioner7';
 
 @Module({
   imports: [
@@ -108,15 +110,15 @@ import { SunatModule } from '@angelitosystems/sdk-visioner7';
       isGlobal: true,
     }),
 
-    SunatModule.forRootAsync({
+    SDKVisioner7Module.forRootAsync({
       imports: [ConfigModule],
 
       inject: [ConfigService],
 
       useFactory: (config: ConfigService) => ({
-        baseUrl: config.get<string>('SUNAT_BASE_URL'),
-        authToken: config.get<string>('SUNAT_AUTH_TOKEN'),
-        businessToken: config.get<string>('SUNAT_BUSINESS_TOKEN'),
+        baseUrl: config.get<string>('SDK_VISIONER7_BASE_URL'),
+        authToken: config.get<string>('SDK_VISIONER7_AUTH_TOKEN'),
+        businessToken: config.get<string>('SDK_VISIONER7_BUSINESS_TOKEN'),
         timeout: 15000,
       }),
     }),
@@ -125,7 +127,7 @@ import { SunatModule } from '@angelitosystems/sdk-visioner7';
 export class AppModule {}
 ```
 
-El módulo puede registrarse como global para evitar importaciones repetidas en los módulos que utilicen `SunatService`.
+El módulo puede registrarse como global para evitar importaciones repetidas en los módulos que utilicen `SDKVisioner7Service`.
 
 ---
 
@@ -134,9 +136,9 @@ El módulo puede registrarse como global para evitar importaciones repetidas en 
 Ejemplo:
 
 ```env
-SUNAT_BASE_URL=https://visioner7-api.com/api
-SUNAT_AUTH_TOKEN=your_token_here
-SUNAT_BUSINESS_TOKEN=your_business_token_here
+SDK_VISIONER7_BASE_URL=https://visioner7-api.com/api
+SDK_VISIONER7_AUTH_TOKEN=your_token_here
+SDK_VISIONER7_BUSINESS_TOKEN=your_business_token_here
 ```
 
 **Nunca almacenes credenciales reales directamente dentro del código fuente.**
@@ -152,20 +154,20 @@ Se recomienda utilizar:
 
 # Uso del servicio
 
-Una vez configurado el módulo, puedes inyectar `SunatService` en cualquier servicio de NestJS.
+Una vez configurado el módulo, puedes inyectar `SDKVisioner7Service` en cualquier servicio de NestJS.
 
 ```ts
 import { Injectable } from '@nestjs/common';
-import { SunatService } from '@angelitosystems/sdk-visioner7';
+import { SDKVisioner7Service } from '@angelitosystems/sdk-visioner7';
 
 @Injectable()
 export class FacturacionService {
   constructor(
-    private readonly sunatService: SunatService,
+    private readonly sdkVisioner7Service: SDKVisioner7Service,
   ) {}
 
   async validarCliente(ruc: string) {
-    const response = await this.sunatService.consultarRuc(ruc);
+    const response = await this.sdkVisioner7Service.consultarRuc(ruc);
 
     return response.comprobante;
   }
@@ -179,7 +181,7 @@ export class FacturacionService {
 ## 1. Consultar RUC
 
 ```ts
-sunatService.consultarRuc(
+sdkVisioner7Service.consultarRuc(
   ruc: string | number,
 ): Promise<ConsultarRucResponse>
 ```
@@ -187,7 +189,7 @@ sunatService.consultarRuc(
 Realiza una consulta de RUC mediante el servicio contratado.
 
 ```ts
-const response = await sunatService.consultarRuc(
+const response = await sdkVisioner7Service.consultarRuc(
   '20611187719',
 );
 
@@ -203,7 +205,7 @@ La aplicación debe contar con las credenciales y permisos correspondientes para
 # 2. Consultar domicilio fiscal / establecimientos
 
 ```ts
-sunatService.consultarLocalesEstablecimientos(
+sdkVisioner7Service.consultarLocalesEstablecimientos(
   ruc: string | number,
   tipoConsulta: TipoConsultaLocal | number,
 ): Promise<LocalesEstablecimientosResponse>
@@ -225,7 +227,7 @@ Ejemplo:
 
 ```ts
 const domicilio =
-  await this.sunatService.consultarLocalesEstablecimientos(
+  await this.sdkVisioner7Service.consultarLocalesEstablecimientos(
     '20611187719',
     TipoConsultaLocal.DOMICILIO_FISCAL,
   );
@@ -236,7 +238,7 @@ const domicilio =
 # 3. Consultar DNI
 
 ```ts
-sunatService.consultarDni(
+sdkVisioner7Service.consultarDni(
   dni: string | number,
 ): Promise<ConsultarDniResponse>
 ```
@@ -244,7 +246,7 @@ sunatService.consultarDni(
 Ejemplo:
 
 ```ts
-const persona = await this.sunatService.consultarDni(
+const persona = await this.sdkVisioner7Service.consultarDni(
   '10292315',
 );
 
@@ -260,7 +262,7 @@ El uso de información personal debe realizarse de acuerdo con la normativa apli
 # 4. Tipo de cambio
 
 ```ts
-sunatService.obtenerTipoCambio(
+sdkVisioner7Service.obtenerTipoCambio(
   params: TipoCambioRequest,
 ): Promise<TipoCambioResponse>
 ```
@@ -269,7 +271,7 @@ Ejemplo:
 
 ```ts
 const response =
-  await this.sunatService.obtenerTipoCambio({
+  await this.sdkVisioner7Service.obtenerTipoCambio({
     anio: 2025,
     mes: 7,
   });
@@ -295,7 +297,7 @@ Cuando corresponda, el SDK puede utilizar el `businessToken` configurado en el m
 # 5. Emisión de Guías de Remisión
 
 ```ts
-sunatService.emitirGuiaRemision(
+sdkVisioner7Service.emitirGuiaRemision(
   payload: GuiaRemisionRequest,
 ): Promise<GuiaRemisionResponse>
 ```
@@ -303,15 +305,15 @@ sunatService.emitirGuiaRemision(
 También se proporcionan métodos semánticos para facilitar la lectura del código:
 
 ```ts
-sunatService.emitirGuiaRemisionRemitentePublico(
+sdkVisioner7Service.emitirGuiaRemisionRemitentePublico(
   payload,
 );
 
-sunatService.emitirGuiaRemisionRemitentePrivado(
+sdkVisioner7Service.emitirGuiaRemisionRemitentePrivado(
   payload,
 );
 
-sunatService.emitirGuiaRemisionTransportista(
+sdkVisioner7Service.emitirGuiaRemisionTransportista(
   payload,
 );
 ```
@@ -324,7 +326,7 @@ Ejemplo conceptual:
 
 ```ts
 const resultado =
-  await this.sunatService.emitirGuiaRemision({
+  await this.sdkVisioner7Service.emitirGuiaRemision({
     TIPO_PROCESO: '1',
     NRO_DOCUMENTO_EMPRESA: 'YOUR_RUC',
     USUARIO_SOL_EMPRESA: 'YOUR_SOL_USER',
@@ -359,7 +361,7 @@ const resultado =
 # 6. Consultar ticket de Guía de Remisión
 
 ```ts
-sunatService.consultarTicketGuiaRemision(
+sdkVisioner7Service.consultarTicketGuiaRemision(
   payload: GuiaRemisionTicketStatusRequest,
 ): Promise<GuiaRemisionTicketStatusResponse>
 ```
@@ -368,7 +370,7 @@ Ejemplo:
 
 ```ts
 const estado =
-  await this.sunatService.consultarTicketGuiaRemision({
+  await this.sdkVisioner7Service.consultarTicketGuiaRemision({
     TICKET: 'YOUR_TICKET',
     NRO_DOCUMENTO_EMPRESA: 'YOUR_RUC',
     USUARIO_SOL_EMPRESA: 'YOUR_SOL_USER',
@@ -386,7 +388,7 @@ const estado =
 # 7. Generación de CPE
 
 ```ts
-sunatService.generarCpe(
+sdkVisioner7Service.generarCpe(
   payload: GenerarCpeRequest,
 ): Promise<GenerarCpeResponse>
 ```
@@ -394,11 +396,11 @@ sunatService.generarCpe(
 También existen métodos de conveniencia:
 
 ```ts
-sunatService.generarFacturaContado(
+sdkVisioner7Service.generarFacturaContado(
   payload,
 );
 
-sunatService.generarFacturaCredito(
+sdkVisioner7Service.generarFacturaCredito(
   payload,
 );
 ```
@@ -409,7 +411,7 @@ Ejemplo:
 
 ```ts
 const factura =
-  await this.sunatService.generarCpe({
+  await this.sdkVisioner7Service.generarCpe({
     txtTIPO_OPERACION: '0101',
     txtTOTAL_GRAVADAS: '305.08',
     txtTOTAL_INAFECTA: '0.00',
@@ -474,20 +476,20 @@ console.log(factura.archivo);
 
 # Manejo de errores
 
-El SDK centraliza los errores mediante `SunatApiException`, que extiende `HttpException` de NestJS.
+El SDK centraliza los errores mediante `SDKVisioner7ApiException`, que extiende `HttpException` de NestJS.
 
 Ejemplo:
 
 ```ts
-import { SunatApiException } from
+import { SDKVisioner7ApiException } from
   '@angelitosystems/sdk-visioner7';
 
 try {
-  await this.sunatService.consultarRuc(
+  await this.sdkVisioner7Service.consultarRuc(
     '00000000000',
   );
 } catch (error) {
-  if (error instanceof SunatApiException) {
+  if (error instanceof SDKVisioner7ApiException) {
     console.error(
       error.endpoint,
       error.providerResponse,
@@ -518,7 +520,7 @@ Backend / API
    ├── Reportes
    │
    ▼
-SunatService
+SDKVisioner7Service
    │
    ▼
 Servicio API contratado
@@ -538,8 +540,8 @@ Las credenciales deben permanecer exclusivamente en el backend.
 Nunca expongas en frontend, JavaScript del navegador, aplicaciones móviles sin protección o repositorios públicos:
 
 ```text
-SUNAT_AUTH_TOKEN
-SUNAT_BUSINESS_TOKEN
+SDK_VISIONER7_AUTH_TOKEN
+SDK_VISIONER7_BUSINESS_TOKEN
 USUARIO_SOL_EMPRESA
 PASS_SOL_EMPRESA
 PAS_FIRMA
@@ -550,8 +552,8 @@ ID_TOKEN
 Utiliza variables de entorno:
 
 ```env
-SUNAT_AUTH_TOKEN=********
-SUNAT_BUSINESS_TOKEN=********
+SDK_VISIONER7_AUTH_TOKEN=********
+SDK_VISIONER7_BUSINESS_TOKEN=********
 ```
 
 Y agrega `.env` al `.gitignore`:
@@ -607,21 +609,21 @@ Por ejemplo:
       isGlobal: true,
     }),
 
-    SunatModule.forRootAsync({
+    SDKVisioner7Module.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
 
       useFactory: (config: ConfigService) => ({
         baseUrl: config.get<string>(
-          'SUNAT_BASE_URL',
+          'SDK_VISIONER7_BASE_URL',
         ),
 
         authToken: config.get<string>(
-          'SUNAT_AUTH_TOKEN',
+          'SDK_VISIONER7_AUTH_TOKEN',
         ),
 
         businessToken: config.get<string>(
-          'SUNAT_BUSINESS_TOKEN',
+          'SDK_VISIONER7_BUSINESS_TOKEN',
         ),
 
         timeout: 15000,
@@ -665,18 +667,18 @@ con los archivos JavaScript y declaraciones TypeScript correspondientes.
 │
 ├── src/
 │   ├── interfaces/
-│   │   ├── sunat-config.interface.ts
+│   │   ├── sdk-visioner7-config.interface.ts
 │   │   ├── consultas.interface.ts
 │   │   ├── guia-remision.interface.ts
 │   │   ├── cpe.interface.ts
 │   │   └── index.ts
 │   │
 │   ├── exceptions/
-│   │   └── sunat-api.exception.ts
+│   │   └── sdk-visioner7-api.exception.ts
 │   │
 │   ├── constants.ts
-│   ├── sunat.module.ts
-│   ├── sunat.service.ts
+│   ├── sdk-visioner7.module.ts
+│   ├── sdk-visioner7.service.ts
 │   └── index.ts
 │
 ├── example/

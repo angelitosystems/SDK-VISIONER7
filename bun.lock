@@ -4,9 +4,6 @@
   "workspaces": {
     "": {
       "name": "@angelitosystems/sdk-visioner7",
-      "dependencies": {
-        "@angelitosystems/sdk-visioner7": "^1.0.2",
-      },
       "devDependencies": {
         "@nestjs/axios": "^12.0.0",
         "@nestjs/common": "^12.0.1",
@@ -28,8 +25,6 @@
     },
   },
   "packages": {
-    "@angelitosystems/sdk-visioner7": ["@angelitosystems/sdk-visioner7@1.0.2", "", { "peerDependencies": { "@nestjs/axios": "^12.0.0", "@nestjs/common": "^12.0.1", "axios": "^1.20.0", "reflect-metadata": "^0.1.13 || ^0.2.0", "rxjs": "^7.0.0" } }, "sha512-/3eQsu3y70WQzBR4vpLgxc2ValkBkXmFLOpD64AhivwDVn8J5j1oWLfK3fCgSiSx5FYkwF+gI7er2F2Gr/3p3w=="],
-
     "@borewit/text-codec": ["@borewit/text-codec@0.2.2", "", {}, "sha512-DDaRehssg1aNrH4+2hnj1B7vnUGEjU6OIlyRdkMd0aUdIUvKXrJfXsy8LVtXAy7DRvYVluWbMspsRhz2lcW0mQ=="],
 
     "@lukeed/csprng": ["@lukeed/csprng@1.1.0", "", {}, "sha512-Z7C/xXCiGWsg0KuKsHTKJxbWhpI3Vs5GwLfOean7MGyVFGqdRgBbAjOCh6u4bbjPc/8MJ2pZmK/0DLdCbivLDA=="],

@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Post, Body } from '@nestjs/common';
 import {
-  SunatService,
+  SDKVisioner7Service,
   TipoConsultaLocal,
   GenerarCpeRequest,
   GuiaRemisionRequest,
@@ -8,16 +8,16 @@ import {
 
 @Controller('sunat')
 export class AppController {
-  constructor(private readonly sunatService: SunatService) {}
+  constructor(private readonly sdkVisioner7Service: SDKVisioner7Service) {}
 
   @Get('ruc/:ruc')
   consultarRuc(@Param('ruc') ruc: string) {
-    return this.sunatService.consultarRuc(ruc);
+    return this.sdkVisioner7Service.consultarRuc(ruc);
   }
 
   @Get('ruc/:ruc/domicilio-fiscal')
   consultarDomicilioFiscal(@Param('ruc') ruc: string) {
-    return this.sunatService.consultarLocalesEstablecimientos(
+    return this.sdkVisioner7Service.consultarLocalesEstablecimientos(
       ruc,
       TipoConsultaLocal.DOMICILIO_FISCAL,
     );
@@ -25,7 +25,7 @@ export class AppController {
 
   @Get('ruc/:ruc/establecimientos-anexos')
   consultarEstablecimientos(@Param('ruc') ruc: string) {
-    return this.sunatService.consultarLocalesEstablecimientos(
+    return this.sdkVisioner7Service.consultarLocalesEstablecimientos(
       ruc,
       TipoConsultaLocal.ESTABLECIMIENTOS_ANEXOS,
     );
@@ -33,7 +33,7 @@ export class AppController {
 
   @Get('dni/:dni')
   consultarDni(@Param('dni') dni: string) {
-    return this.sunatService.consultarDni(dni);
+    return this.sdkVisioner7Service.consultarDni(dni);
   }
 
   @Get('tipo-cambio/:anio/:mes')
@@ -41,7 +41,7 @@ export class AppController {
     @Param('anio') anio: string,
     @Param('mes') mes: string,
   ) {
-    return this.sunatService.obtenerTipoCambio({
+    return this.sdkVisioner7Service.obtenerTipoCambio({
       anio: Number(anio),
       mes: Number(mes),
     });
@@ -49,11 +49,11 @@ export class AppController {
 
   @Post('guia-remision')
   emitirGuia(@Body() payload: GuiaRemisionRequest) {
-    return this.sunatService.emitirGuiaRemision(payload);
+    return this.sdkVisioner7Service.emitirGuiaRemision(payload);
   }
 
   @Post('generar-cpe')
   generarCpe(@Body() payload: GenerarCpeRequest) {
-    return this.sunatService.generarCpe(payload);
+    return this.sdkVisioner7Service.generarCpe(payload);
   }
 }

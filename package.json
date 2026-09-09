@@ -1,26 +1,34 @@
 {
   "name": "@angelitosystems/sdk-visioner7",
-  "version": "1.0.2",
-  "type": "module",
-  "description": "SDK independiente para NestJS y TypeScript que facilita la integración con un servicio externo contratado para consultas RUC-DNI, Tipo de Cambio, Guías de Remisión y CPE.",
+  "version": "1.1.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/angelitosystems/SDK-VISIONER7.git"
   },
-  "homepage": "https://angelitosystems.github.io/SDK-VISIONER7/",
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "devDependencies": {
+    "@nestjs/axios": "^12.0.0",
+    "@nestjs/common": "^12.0.1",
+    "@nestjs/core": "^12.0.1",
+    "@types/node": "^26.5.0",
+    "axios": "^1.20.0",
+    "reflect-metadata": "^0.2.2",
+    "rimraf": "^6.1.3",
+    "rxjs": "^7.8.1",
+    "typescript": "^7.0.2"
+  },
+  "peerDependencies": {
+    "@nestjs/axios": "^12.0.0",
+    "@nestjs/common": "^12.0.1",
+    "axios": "^1.20.0",
+    "reflect-metadata": "^0.1.13 || ^0.2.0",
+    "rxjs": "^7.0.0"
+  },
+  "description": "SDK independiente para NestJS y TypeScript que facilita la integración con un servicio externo contratado para consultas RUC-DNI, Tipo de Cambio, Guías de Remisión y CPE.",
   "files": [
     "dist"
   ],
-  "publishConfig": {
-    "access": "public"
-  },
-  "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "prepublishOnly": "npm run build",
-    "clean": "rimraf dist"
-  },
+  "homepage": "https://angelitosystems.github.io/SDK-VISIONER7/",
   "keywords": [
     "nestjs",
     "sunat",
@@ -33,25 +41,14 @@
     "sdk"
   ],
   "license": "MIT",
-  "peerDependencies": {
-    "@nestjs/axios": "^12.0.0",
-    "@nestjs/common": "^12.0.1",
-    "axios": "^1.20.0",
-    "reflect-metadata": "^0.1.13 || ^0.2.0",
-    "rxjs": "^7.0.0"
+  "publishConfig": {
+    "access": "public"
   },
-  "devDependencies": {
-    "@nestjs/axios": "^12.0.0",
-    "@nestjs/common": "^12.0.1",
-    "@nestjs/core": "^12.0.1",
-    "@types/node": "^26.5.0",
-    "axios": "^1.20.0",
-    "reflect-metadata": "^0.2.2",
-    "rimraf": "^6.1.3",
-    "rxjs": "^7.8.1",
-    "typescript": "^7.0.2"
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "prepublishOnly": "npm run build",
+    "clean": "rimraf dist"
   },
-  "dependencies": {
-    "@angelitosystems/sdk-visioner7": "^1.0.2"
-  }
+  "type": "module",
+  "types": "dist/index.d.ts"
 }
