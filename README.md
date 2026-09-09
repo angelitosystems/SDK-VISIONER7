@@ -16,23 +16,21 @@ El SDK proporciona una capa tipada y organizada para consumir las funcionalidade
 
 El SDK proporciona una interfaz tipada para trabajar con las funcionalidades disponibles en el servicio contratado, entre ellas:
 
-* Consulta de RUC.
+* Consulta de RUC (contribuyentes).
 * Consulta de información de domicilio fiscal.
 * Consulta de establecimientos anexos.
-* Consulta de DNI.
+* Consulta de DNI (personas naturales).
 * Consulta de tipo de cambio.
 * Emisión de Guías de Remisión.
 * Consulta de estado/ticket de Guías de Remisión.
 * Emisión de Comprobantes de Pago Electrónicos (CPE).
-* Generación de facturas al contado.
-* Generación de facturas al crédito.
 * Manejo centralizado de errores.
 * Configuración mediante `forRoot`.
 * Configuración mediante `forRootAsync`.
 * Interfaces TypeScript para requests y responses.
 * Integración con `@nestjs/axios`.
 
-El SDK busca proporcionar una capa de abstracción para que la aplicación no tenga que implementar directamente la comunicación HTTP con el servicio externo.
+Desde la **versión 2.0.0** la API pública del SDK (métodos, clases e interfaces) está nombrada en **inglés**, y el SDK se encarga internamente de traducir los payloads hacia el formato que espera el proveedor (capa de *mapping*). Tu aplicación solo trabaja con nombres en inglés.
 
 ---
 
@@ -57,9 +55,30 @@ También puede distribuirse mediante un registro privado de paquetes.
 
 ---
 
-# Configuración
+# Migración v1 → v2
 
-> **Compatibilidad:** los nombres antiguos `SunatModule`, `SunatService` y `SunatApiException` se mantienen como alias obsoletos (deprecated) para facilitar la migración. Se recomienda usar los nuevos nombres `SDKVisioner7Module`, `SDKVisioner7Service` y `SDKVisioner7ApiException`.
+La versión 2.0.0 renombra la API pública al inglés y **elimina los alias antiguos** (`SunatModule`, `SunatService`, `consultarRuc`, etc.). Correspondencia principal:
+
+| v1 (anterior)                    | v2 (actual)                              |
+| -------------------------------- | ---------------------------------------- |
+| `SunatModule`                    | `SDKVisioner7Module`                     |
+| `SunatService`                   | `SDKVisioner7Service`                    |
+| `SunatApiException`              | `SDKVisioner7ApiException`               |
+| `consultarRuc()`                 | `lookupTaxpayer()`                       |
+| `consultarLocalesEstablecimientos()` | `lookupEstablishments()`             |
+| `consultarDni()`                 | `lookupPerson()`                         |
+| `obtenerTipoCambio()`            | `getExchangeRate()`                      |
+| `emitirGuiaRemision()`           | `issueRemittanceGuide()`                 |
+| `consultarTicketGuiaRemision()`  | `getRemittanceGuideTicketStatus()`       |
+| `generarCpe()`                   | `generateVoucher()`                      |
+| `TipoConsultaLocal`              | `EstablishmentQueryType`                 |
+| `SUNAT_*` (variables de entorno) | `SDK_VISIONER7_*`                        |
+
+Los payloads y respuestas también llegan tipados en inglés (por ejemplo `response.taxpayer.businessName` en vez de `response.comprobante.desRazonSocial`). El SDK mapea automáticamente hacia/desde el formato del proveedor.
+
+---
+
+# Configuración
 
 ## Opción 1: `forRoot`
 
@@ -127,7 +146,7 @@ import { SDKVisioner7Module } from '@angelitosystems/sdk-visioner7';
 export class AppModule {}
 ```
 
-El módulo puede registrarse como global para evitar importaciones repetidas en los módulos que utilicen `SDKVisioner7Service`.
+El módulo se registra como global para evitar importaciones repetidas en los módulos que utilicen `SDKVisioner7Service`.
 
 ---
 
@@ -167,9 +186,9 @@ export class FacturacionService {
   ) {}
 
   async validarCliente(ruc: string) {
-    const response = await this.sdkVisioner7Service.consultarRuc(ruc);
+    const response = await this.sdkVisioner7Service.lookupTaxpayer(ruc);
 
-    return response.comprobante;
+    return response.taxpayer;
   }
 }
 ```
@@ -178,23 +197,23 @@ export class FacturacionService {
 
 # Métodos disponibles
 
-## 1. Consultar RUC
+## 1. Consultar RUC (contribuyente)
 
 ```ts
-sdkVisioner7Service.consultarRuc(
+sdkVisioner7Service.lookupTaxpayer(
   ruc: string | number,
-): Promise<ConsultarRucResponse>
+): Promise<TaxpayerLookupResponse>
 ```
 
 Realiza una consulta de RUC mediante el servicio contratado.
 
 ```ts
-const response = await sdkVisioner7Service.consultarRuc(
+const response = await sdkVisioner7Service.lookupTaxpayer(
   '20611187719',
 );
 
 console.log(
-  response.comprobante.desRazonSocial,
+  response.taxpayer.businessName,
 );
 ```
 
@@ -202,56 +221,54 @@ La aplicación debe contar con las credenciales y permisos correspondientes para
 
 ---
 
-# 2. Consultar domicilio fiscal / establecimientos
+# 2. Consultar domicilio fiscal / establecimientos anexos
 
 ```ts
-sdkVisioner7Service.consultarLocalesEstablecimientos(
+sdkVisioner7Service.lookupEstablishments(
   ruc: string | number,
-  tipoConsulta: TipoConsultaLocal | number,
-): Promise<LocalesEstablecimientosResponse>
+  queryType: EstablishmentQueryType | number,
+): Promise<EstablishmentLookupResponse>
 ```
 
 Tipos disponibles:
 
 ```ts
-TipoConsultaLocal.DOMICILIO_FISCAL
-```
-
-o:
-
-```ts
-1
+EstablishmentQueryType.FISCAL_ADDRESS          // 1: domicilio fiscal
+EstablishmentQueryType.ANNEXED_ESTABLISHMENTS  // 2: establecimientos anexos
 ```
 
 Ejemplo:
 
 ```ts
 const domicilio =
-  await this.sdkVisioner7Service.consultarLocalesEstablecimientos(
+  await this.sdkVisioner7Service.lookupEstablishments(
     '20611187719',
-    TipoConsultaLocal.DOMICILIO_FISCAL,
+    EstablishmentQueryType.FISCAL_ADDRESS,
   );
+
+console.log(domicilio.fiscalAddress?.[0]?.address);
 ```
 
 ---
 
-# 3. Consultar DNI
+# 3. Consultar DNI (persona natural)
 
 ```ts
-sdkVisioner7Service.consultarDni(
+sdkVisioner7Service.lookupPerson(
   dni: string | number,
-): Promise<ConsultarDniResponse>
+): Promise<NaturalPersonLookupResponse>
 ```
 
 Ejemplo:
 
 ```ts
-const persona = await this.sdkVisioner7Service.consultarDni(
+const persona = await this.sdkVisioner7Service.lookupPerson(
   '10292315',
 );
 
 console.log(
-  persona.comprobante.nomPerNat,
+  persona.person.givenNames,
+  persona.person.paternalSurname,
 );
 ```
 
@@ -262,27 +279,27 @@ El uso de información personal debe realizarse de acuerdo con la normativa apli
 # 4. Tipo de cambio
 
 ```ts
-sdkVisioner7Service.obtenerTipoCambio(
-  params: TipoCambioRequest,
-): Promise<TipoCambioResponse>
+sdkVisioner7Service.getExchangeRate(
+  params: ExchangeRateRequest,
+): Promise<ExchangeRateResponse>
 ```
 
 Ejemplo:
 
 ```ts
 const response =
-  await this.sdkVisioner7Service.obtenerTipoCambio({
-    anio: 2025,
-    mes: 7,
+  await this.sdkVisioner7Service.getExchangeRate({
+    year: 2025,
+    month: 7,
   });
 
 const compra = response.data.find(
-  item => item.codTipo === 'C',
-)?.valTipo;
+  item => item.side === 'C',
+)?.value;
 
 const venta = response.data.find(
-  item => item.codTipo === 'V',
-)?.valTipo;
+  item => item.side === 'V',
+)?.value;
 
 console.log({
   compra,
@@ -290,68 +307,72 @@ console.log({
 });
 ```
 
-Cuando corresponda, el SDK puede utilizar el `businessToken` configurado en el módulo.
+Cuando corresponda, el SDK utiliza el `businessToken` configurado en el módulo.
 
 ---
 
 # 5. Emisión de Guías de Remisión
 
 ```ts
-sdkVisioner7Service.emitirGuiaRemision(
-  payload: GuiaRemisionRequest,
-): Promise<GuiaRemisionResponse>
+sdkVisioner7Service.issueRemittanceGuide(
+  payload: RemittanceGuideRequest,
+): Promise<RemittanceGuideResponse>
 ```
 
-También se proporcionan métodos semánticos para facilitar la lectura del código:
-
-```ts
-sdkVisioner7Service.emitirGuiaRemisionRemitentePublico(
-  payload,
-);
-
-sdkVisioner7Service.emitirGuiaRemisionRemitentePrivado(
-  payload,
-);
-
-sdkVisioner7Service.emitirGuiaRemisionTransportista(
-  payload,
-);
-```
-
-Estos métodos funcionan como una capa de conveniencia sobre las operaciones de emisión disponibles en el servicio.
-
-Los campos requeridos dependerán del tipo de guía y de las especificaciones del servicio contratado.
+Emite una guía de remisión (remitente público, remitente privado o transportista). El "tipo" de guía depende exclusivamente de los campos incluidos en el payload.
 
 Ejemplo conceptual:
 
 ```ts
 const resultado =
-  await this.sdkVisioner7Service.emitirGuiaRemision({
-    TIPO_PROCESO: '1',
-    NRO_DOCUMENTO_EMPRESA: 'YOUR_RUC',
-    USUARIO_SOL_EMPRESA: 'YOUR_SOL_USER',
-    PASS_SOL_EMPRESA: 'YOUR_SOL_PASSWORD',
-    PAS_FIRMA: 'YOUR_SIGNATURE_PASSWORD',
+  await this.sdkVisioner7Service.issueRemittanceGuide({
+    processType: '1',
+    companyDocumentNumber: 'YOUR_RUC',
+    companySolUsername: 'YOUR_SOL_USER',
+    companySolPassword: 'YOUR_SOL_PASSWORD',
+    signaturePassword: 'YOUR_SIGNATURE_PASSWORD',
 
-    COD_TIPO_DOCUMENTO: '09',
-    NRO_COMPROBANTE: 'T001-00000002',
+    documentTypeCode: '09',
+    documentNumber: 'T001-00000002',
 
-    FECHA_DOCUMENTO: '2025-08-10',
+    idToken: 'YOUR_ID_TOKEN',
+    tokenKey: 'YOUR_TOKEN_KEY',
 
-    RAZON_SOCIAL_EMPRESA:
-      'EMPRESA DE EJEMPLO S.A.C.',
+    documentDate: '2025-08-10',
 
-    detalle: [
+    companyDocumentType: '6',
+    companyBusinessName: 'EMPRESA DE EJEMPLO S.A.C.',
+
+    recipientDocumentType: '6',
+    recipientDocumentNumber: 'YOUR_CLIENT_RUC',
+    recipientBusinessName: 'CLIENTE DE EJEMPLO S.A.C.',
+
+    shipmentItem: '1',
+    transferReasonCode: '01',
+    transferReasonDescription: 'VENTA',
+    grossWeightUnit: 'KGM',
+    grossWeight: '10.00',
+    transportModalityCode: '01',
+    startDate: '2025-08-10',
+
+    originUbigeoCode: '150101',
+    originAddress: 'AV. EJEMPLO 123',
+    destinationUbigeoCode: '150101',
+    destinationAddress: 'AV. DESTINO 456',
+
+    items: [
       {
-        ITEM: '1',
-        UNIDAD_MEDIDA: 'NIU',
-        CANTIDAD: '1',
-        ORDER_ITEM: '1',
-        DESCRIPCION: 'PRODUCTO DE EJEMPLO',
-        CODIGO: 'PROD001',
+        item: '1',
+        unitOfMeasure: 'NIU',
+        quantity: '1',
+        orderItem: '1',
+        description: 'PRODUCTO DE EJEMPLO',
+        code: 'PROD001',
       },
     ],
   });
+
+console.log(resultado.providerResult.sunatMessage);
 ```
 
 > Los valores mostrados son únicamente ilustrativos. Sustituye las credenciales y datos empresariales por valores correspondientes a tu propio entorno.
@@ -361,115 +382,112 @@ const resultado =
 # 6. Consultar ticket de Guía de Remisión
 
 ```ts
-sdkVisioner7Service.consultarTicketGuiaRemision(
-  payload: GuiaRemisionTicketStatusRequest,
-): Promise<GuiaRemisionTicketStatusResponse>
+sdkVisioner7Service.getRemittanceGuideTicketStatus(
+  payload: RemittanceGuideTicketStatusRequest,
+): Promise<RemittanceGuideTicketStatusResponse>
 ```
 
 Ejemplo:
 
 ```ts
 const estado =
-  await this.sdkVisioner7Service.consultarTicketGuiaRemision({
-    TICKET: 'YOUR_TICKET',
-    NRO_DOCUMENTO_EMPRESA: 'YOUR_RUC',
-    USUARIO_SOL_EMPRESA: 'YOUR_SOL_USER',
-    PASS_SOL_EMPRESA: 'YOUR_SOL_PASSWORD',
-    ID_TOKEN: 'YOUR_ID_TOKEN',
-    CLAVE_TOKEN: 'YOUR_TOKEN_KEY',
-    COD_TIPO_DOCUMENTO: '31',
-    NRO_COMPROBANTE: 'V001-00000001',
-    TIPO_PROCESO: '1',
+  await this.sdkVisioner7Service.getRemittanceGuideTicketStatus({
+    ticket: 'YOUR_TICKET',
+    companyDocumentNumber: 'YOUR_RUC',
+    companySolUsername: 'YOUR_SOL_USER',
+    companySolPassword: 'YOUR_SOL_PASSWORD',
+    idToken: 'YOUR_ID_TOKEN',
+    tokenKey: 'YOUR_TOKEN_KEY',
+    documentTypeCode: '31',
+    documentNumber: 'V001-00000001',
+    processType: '1',
   });
 ```
 
 ---
 
-# 7. Generación de CPE
+# 7. Generación de CPE (comprobantes electrónicos)
 
 ```ts
-sdkVisioner7Service.generarCpe(
-  payload: GenerarCpeRequest,
-): Promise<GenerarCpeResponse>
+sdkVisioner7Service.generateVoucher(
+  payload: GenerateVoucherRequest,
+): Promise<GenerateVoucherResponse>
 ```
 
-También existen métodos de conveniencia:
+La modalidad de pago se determina mediante la información enviada en `paymentTerms`:
 
-```ts
-sdkVisioner7Service.generarFacturaContado(
-  payload,
-);
+* **Contado**: una única entrada con `paymentFormCode: 'Contado'`.
+* **Crédito**: una entrada `'Credito'` + cuotas (`'Cuota001'`, `'Cuota002'`, ...) con `dueDate`.
 
-sdkVisioner7Service.generarFacturaCredito(
-  payload,
-);
-```
-
-La modalidad de pago se determina mediante la información enviada en `detalle_forma_pago`.
-
-Ejemplo:
+Ejemplo (factura al contado):
 
 ```ts
 const factura =
-  await this.sdkVisioner7Service.generarCpe({
-    txtTIPO_OPERACION: '0101',
-    txtTOTAL_GRAVADAS: '305.08',
-    txtTOTAL_INAFECTA: '0.00',
-    txtTOTAL_EXONERADAS: '0.00',
-    txtTOTAL_GRATUITAS: '0.00',
-    txtSUB_TOTAL: '305.08',
-    txtTOTAL_DESCUENTO: '0.00',
-    txtPOR_IGV: '18.00',
-    txtTOTAL_IGV: '54.92',
-    txtTOTAL: '360.00',
+  await this.sdkVisioner7Service.generateVoucher({
+    operationType: '0101',
+    totalTaxableAmount: '305.08',
+    totalUntaxedAmount: '0.00',
+    totalExemptAmount: '0.00',
+    totalFreeAmount: '0.00',
+    subtotal: '305.08',
+    totalDiscount: '0.00',
+    igvPercentage: '18.00',
+    totalIgv: '54.92',
+    total: '360.00',
 
-    txtCOD_TIPO_DOCUMENTO: '01',
-    txtCOD_MONEDA: 'PEN',
+    totalInWords: 'TRESCIENTOS SESENTA CON 00/100 SOLES',
 
-    txtNRO_COMPROBANTE: 'F001-00000001',
+    voucherTypeCode: '01',
+    currencyCode: 'PEN',
 
-    txtNRO_DOCUMENTO_CLIENTE: 'YOUR_CLIENT_DOCUMENT',
-    txtRAZON_SOCIAL_CLIENTE:
-      'CLIENTE DE EJEMPLO',
+    voucherNumber: 'F001-00000001',
+    issueDate: '2025-08-10',
 
-    txtNRO_DOCUMENTO_EMPRESA:
-      'YOUR_RUC',
+    clientDocumentNumber: 'YOUR_CLIENT_DOCUMENT',
+    clientBusinessName: 'CLIENTE DE EJEMPLO',
+    clientDocumentType: '6',
 
-    txtRAZON_SOCIAL_EMPRESA:
-      'EMPRESA DE EJEMPLO S.A.C.',
+    companyDocumentNumber: 'YOUR_RUC',
+    companyDocumentType: '6',
+    companyBusinessName: 'EMPRESA DE EJEMPLO S.A.C.',
 
-    detalle_forma_pago: [
+    companySolUsername: 'YOUR_SOL_USER',
+    companySolPassword: 'YOUR_SOL_PASSWORD',
+    certificatePassword: 'YOUR_CERT_PASSWORD',
+    signaturePassword: 'YOUR_SIGNATURE_PASSWORD',
+    processType: '1',
+
+    paymentTerms: [
       {
-        COD_FORMA_PAGO: 'Contado',
-        MONTO_FORMA_PAGO: '360.00',
+        paymentFormCode: 'Contado',
+        amount: '360.00',
       },
     ],
 
-    detalle: [
+    items: [
       {
-        txtITEM: '1',
-        txtUNIDAD_MEDIDA_DET: 'NIU',
-        txtCANTIDAD_DET: '1.00',
-        txtPRECIO_DET: '360.00',
-        txtIMPORTE_DET: '305.08',
-        txtPRECIO_TIPO_CODIGO: '01',
-        txtIGV: '54.92',
-        POR_IGV: '18.00',
-        txtISC: '0.00',
-        txtCOD_TIPO_OPERACION: '10',
-        txtCODIGO_DET: 'PROD001',
-        txtDESCRIPCION_DET:
-          'PRODUCTO DE EJEMPLO',
-        txtPRECIO_SIN_IGV_DET: '305.08',
-        FLG_ICBPER: 0,
-        IMPUESTO_BP: '0.00',
-        IMPORTE_BP: '0.00',
+        item: '1',
+        unitOfMeasure: 'NIU',
+        quantity: '1.00',
+        price: '360.00',
+        amount: '305.08',
+        priceTypeCode: '01',
+        igv: '54.92',
+        igvPercentage: '18.00',
+        isc: '0.00',
+        operationTypeCode: '10',
+        code: 'PROD001',
+        description: 'PRODUCTO DE EJEMPLO',
+        priceWithoutIgv: '305.08',
+        icbperFlag: 0,
+        icbperTaxAmount: '0.00',
+        icbperTotalAmount: '0.00',
       },
     ],
   });
 
-console.log(factura.msj_sunat);
-console.log(factura.archivo);
+console.log(factura.sunatMessage);
+console.log(factura.file);
 ```
 
 ---
@@ -485,7 +503,7 @@ import { SDKVisioner7ApiException } from
   '@angelitosystems/sdk-visioner7';
 
 try {
-  await this.sdkVisioner7Service.consultarRuc(
+  await this.sdkVisioner7Service.lookupTaxpayer(
     '00000000000',
   );
 } catch (error) {
@@ -501,6 +519,47 @@ try {
 ```
 
 Esto permite integrar fácilmente el SDK con los `ExceptionFilter` globales de NestJS.
+
+---
+
+# Glosario
+
+El servicio integra con conceptos tributarios y logísticos de Perú. Esta sección explica cada término que aparece en el SDK y en los payloads del proveedor:
+
+| Término | Significado |
+| --- | --- |
+| **SUNAT** | Superintendencia Nacional de Aduanas y de Administración Tributaria: entidad del Estado peruano que administra impuestos y valida los comprobantes electrónicos. |
+| **RUC** | Registro Único de Contribuyentes: número de 11 dígitos que identifica a una empresa o persona con negocio ante SUNAT. |
+| **DNI** | Documento Nacional de Identidad: documento de identidad de personas naturales peruanas (8 dígitos). |
+| **CPE** | Comprobante de Pago Electrónico: factura o boleta electrónica enviada a SUNAT para su validación antes de considerarse emitida. |
+| **Factura / Boleta** | Tipos de comprobante. Códigos SUNAT: `01` = factura, `03` = boleta (campo `voucherTypeCode`). |
+| **Guía de Remisión (GRE)** | Documento electrónico que sustenta el traslado de bienes (campo `documentTypeCode: '09'`). |
+| **Remitente público / privado / transportista** | Modalidades de guía de remisión según quién traslada los bienes. Se definen por los campos incluidos en el payload. |
+| **Ticket** | Código que devuelve el proveedor al emitir una guía; permite consultar después el resultado de la validación (`getRemittanceGuideTicketStatus`). |
+| **CDR** | Constancia de Recepción: respuesta oficial de SUNAT con el resultado de la validación del comprobante. `responseCode`/`sunatCode` en `"0"` significa aceptado. |
+| **Hash CDR / CPE** | Resumen criptográfico (huella) del XML del comprobante o de la constancia. |
+| **XML / UBL** | Formato estándar en el que se genera y firma el comprobante electrónico. |
+| **IGV** | Impuesto General a las Ventas: IVA peruano (18% habitual). Campos `igv`, `igvPercentage`, `totalIgv`. |
+| **ISC** | Impuesto Selectivo al Consumo: aplica a ciertos bienes (bebidas, combustibles, etc.). Campos `isc`, `totalIsc`. |
+| **ICBPER** | Impuesto a la Bolsa Plástica de un solo uso. En el proveedor aparece como `IMPUESTO_BP`/`IMPORTE_BP` y el flag `FLG_ICBPER` (mapeado a `icbperFlag`, `icbperTaxAmount`, `icbperTotalAmount`). |
+| **Gravado** | Operación afecta al IGV (`totalTaxableAmount`). |
+| **Exonerado** | Operación no afecta al IGV por ley (`totalExemptAmount`). |
+| **Inafecto** | Operación no sujeta al IGV por naturaleza (`totalUntaxedAmount`). |
+| **Gratuito** | Entregas gratuitas (`totalFreeAmount`). |
+| **Detracción** | Retención de un porcentaje del pago a una cuenta del Banco de la Nación para ciertos bienes/servicios (campos `detractionCode`, `detractionPercentage`, `detractionsTotal`). |
+| **Percepción** | Cobro anticipado del IGV en la venta (campos `perceptions*`). |
+| **Retención** | Retención del IGV al proveedor (campos `retentions*`). |
+| **Contado / Crédito** | Formas de pago del CPE. En el proveedor: `COD_FORMA_PAGO = 'Contado'` o `'Credito'` + cuotas `Cuota001`, `Cuota002`, ... (mapeado a `paymentTerms`). |
+| **Tipo de cambio** | Precio de referencia del dólar (USD) publicado por SUNAT, con valores de compra (`side: 'C'`) y venta (`side: 'V'`). |
+| **Ubigeo** | Código geográfico oficial (departamento / provincia / distrito) usado en direcciones. |
+| **Usuario SOL / Clave SOL** | Credenciales del portal de SUNAT con las que se firma y envía el comprobante (`companySolUsername`, `companySolPassword`). |
+| **Certificado digital / firma** | Certificado con el que se firma el XML del comprobante (`signaturePassword`, `certificatePassword`). |
+| **Habido / condición de domicilio** | Condición del contribuyente frente a SUNAT (ubicable o no). Campos `statusCode` y `presenceCode` en el lookup de RUC. |
+| **Establecimientos anexos** | Sucursales o locales adicionales declarados por un contribuyente además de su domicilio fiscal. |
+| **Tipo de proceso (`processType`)** | Modo de emisión según el proveedor: producción o beta (`'1'` / `'2'`). |
+| **MTC** | Ministerio de Transportes y Comunicaciones: registros de vehículos y conductores usados en guías transportista (campos `*MtcRegistrationId`). |
+| **NIU / KGM** | Unidades de medida: NIU = unidades, KGM = kilogramos (campos `unitOfMeasure`, `grossWeightUnit`). |
+| **PEN / USD** | Códigos de moneda ISO: sol peruano y dólar estadounidense (campo `currencyCode`). |
 
 ---
 
@@ -592,7 +651,7 @@ La carpeta:
 example/
 ```
 
-puede contener una integración de referencia:
+contiene una integración de referencia:
 
 ```text
 example/
@@ -668,9 +727,16 @@ con los archivos JavaScript y declaraciones TypeScript correspondientes.
 ├── src/
 │   ├── interfaces/
 │   │   ├── sdk-visioner7-config.interface.ts
-│   │   ├── consultas.interface.ts
-│   │   ├── guia-remision.interface.ts
-│   │   ├── cpe.interface.ts
+│   │   ├── lookups.interface.ts
+│   │   ├── remittance-guide.interface.ts
+│   │   ├── voucher.interface.ts
+│   │   └── index.ts
+│   │
+│   ├── mapping/
+│   │   ├── lookups.mapping.ts
+│   │   ├── remittance-guide.mapping.ts
+│   │   ├── voucher.mapping.ts
+│   │   ├── voucher-response.mapping.ts
 │   │   └── index.ts
 │   │
 │   ├── exceptions/
@@ -690,6 +756,8 @@ con los archivos JavaScript y declaraciones TypeScript correspondientes.
 ├── .gitignore
 └── README.md
 ```
+
+La carpeta `mapping/` contiene la capa de traducción entre la API pública del SDK (en inglés) y el formato que espera el proveedor (campos como `txtTOTAL`, `NRO_DOCUMENTO_EMPRESA`, etc.).
 
 ---
 
