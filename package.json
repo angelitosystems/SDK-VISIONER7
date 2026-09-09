@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "type": "module",
   "description": "SDK independiente para NestJS y TypeScript que facilita la integración con un servicio externo contratado para consultas RUC-DNI, Tipo de Cambio, Guías de Remisión y CPE.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/angelitosystems/SDK-VISIONER7.git"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
