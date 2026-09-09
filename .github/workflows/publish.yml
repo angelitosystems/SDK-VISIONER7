@@ -89,7 +89,15 @@ jobs:
       # 8. Build
       # ----------------------------------------
       - name: Build package
-        run: npm run build
+        run: |
+          npm run clean
+          npm run build
+
+          if [[ ! -f dist/index.js ]]; then
+            echo "Build failed: dist/index.js was not generated"
+            find dist -maxdepth 3 -type f -print
+            exit 1
+          fi
 
       # ----------------------------------------
       # 9. Check package contents

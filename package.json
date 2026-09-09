@@ -49,7 +49,7 @@
     "prepare": "npm run build",
     "prepack": "npm run build",
     "prepublishOnly": "npm run build",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist tsconfig.tsbuildinfo"
   },
   "type": "module",
   "types": "dist/index.d.ts"
