@@ -72,8 +72,15 @@ export class SDKVisioner7Service {
     @Inject(SDK_VISIONER7_MODULE_OPTIONS)
     private readonly options: SDKVisioner7ModuleOptions,
   ) {
-    this.baseUrl = (options.baseUrl ?? DEFAULT_BASE_URL).replace(/\/+$/, '');
-    this.authToken = options.authToken;
+    let rawBaseUrl = (options.baseUrl ?? DEFAULT_BASE_URL).trim().replace(/\/+$/, '');
+    if (rawBaseUrl.includes('visioner7-api.com') && !rawBaseUrl.includes('service1.visioner7-api.com')) {
+      rawBaseUrl = rawBaseUrl.replace('visioner7-api.com', 'service1.visioner7-api.com');
+    }
+    if (!rawBaseUrl.endsWith('/api')) {
+      rawBaseUrl = `${rawBaseUrl}/api`;
+    }
+    this.baseUrl = rawBaseUrl;
+    this.authToken = options.authToken?.trim();
     this.businessToken = options.businessToken ?? DEFAULT_BUSINESS_TOKEN;
     this.timeout = options.timeout ?? DEFAULT_TIMEOUT;
   }
@@ -217,13 +224,12 @@ export class SDKVisioner7Service {
     url: string,
     data?: unknown,
   ): Promise<T> {
+    const rawToken = (this.authToken ?? '').replace(/^Bearer\s+/i, '').trim();
     const config: AxiosRequestConfig = {
       timeout: this.timeout,
       headers: {
         'Content-Type': 'application/json',
-        ...(this.authToken
-          ? { Authorization: `Bearer ${this.authToken}` }
-          : {}),
+        ...(rawToken ? { Authorization: `Bearer ${rawToken}` } : {}),
       },
     };
 
@@ -250,7 +256,25 @@ export class SDKVisioner7Service {
       ),
     );
 
-    return response.data;
+    let responseData = response.data;
+    if (typeof responseData === 'string') {
+      const trimmed = responseData.trim();
+      if (trimmed.startsWith('<')) {
+        this.logger.error(`Endpoint ${url} respondió con HTML en lugar de JSON.`);
+        throw new SDKVisioner7ApiException(
+          `El endpoint respondió con HTML en lugar de JSON. Verifica que la URL base sea 'https://service1.visioner7-api.com/api'`,
+          url,
+          responseData,
+        );
+      }
+      try {
+        responseData = JSON.parse(responseData);
+      } catch {
+        // keep as is
+      }
+    }
+
+    return responseData as T;
   }
 
   private extractErrorMessage(data: unknown): string {

@@ -91,7 +91,7 @@ import { SDKVisioner7Module } from '@angelitosystems/sdk-visioner7';
 @Module({
   imports: [
     SDKVisioner7Module.forRoot({
-      baseUrl: 'https://visioner7-api.com/api',
+      baseUrl: 'https://service1.visioner7-api.com/api',
       authToken: process.env.SDK_VISIONER7_AUTH_TOKEN,
       businessToken: process.env.SDK_VISIONER7_BUSINESS_TOKEN,
       timeout: 15000,
@@ -155,7 +155,7 @@ El m√≥dulo se registra como global para evitar importaciones repetidas en los m√
 Ejemplo:
 
 ```env
-SDK_VISIONER7_BASE_URL=https://visioner7-api.com/api
+SDK_VISIONER7_BASE_URL=https://service1.visioner7-api.com/api
 SDK_VISIONER7_AUTH_TOKEN=your_token_here
 SDK_VISIONER7_BUSINESS_TOKEN=your_business_token_here
 ```
