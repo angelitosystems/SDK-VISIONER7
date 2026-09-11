@@ -89,7 +89,7 @@ export class SDKVisioner7Service {
   async lookupTaxpayer(ruc: string | number): Promise<TaxpayerLookupResponse> {
     const url = `${this.baseUrl}/sunatv1/consultar-ruc/${ruc}`;
     const wire = await this.request<TaxpayerLookupWireResponse>('GET', url);
-    return fromWireTaxpayerLookupResponse(wire);
+    return fromWireTaxpayerLookupResponse(wire, url);
   }
 
   /**
@@ -107,7 +107,7 @@ export class SDKVisioner7Service {
       'GET',
       url,
     );
-    return fromWireEstablishmentLookupResponse(wire);
+    return fromWireEstablishmentLookupResponse(wire, url);
   }
 
   /**
@@ -122,7 +122,7 @@ export class SDKVisioner7Service {
       'GET',
       url,
     );
-    return fromWireNaturalPersonLookupResponse(wire);
+    return fromWireNaturalPersonLookupResponse(wire, url);
   }
 
   /**

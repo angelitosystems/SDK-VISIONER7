@@ -50,13 +50,36 @@ export interface TaxpayerData {
   statusCode: string;
   /** Presence/domicle condition code (habido/desubicado). */
   presenceCode: string;
+
+  /** Wire alias: registered business name */
+  desRazonSocial?: string;
+  /** Wire alias: full name */
+  desNomApe?: string;
+  /** Wire alias: primary email */
+  codCorreo1?: string;
+  /** Wire alias: secondary email */
+  codCorreo2?: string;
+  /** Wire alias: fiscal address */
+  desDireccion?: string;
+  /** Wire alias: status code */
+  codEstado?: string;
+  /** Wire alias: presence/domicile code */
+  codDomHabido?: string;
 }
 
 /** Response for the taxpayer (RUC) lookup. */
 export interface TaxpayerLookupResponse {
   success: boolean;
+  message?: string;
   /** The taxpayer payload returned by the provider. */
   taxpayer: TaxpayerData;
+  /** Wire payload: direct access to comprobante */
+  comprobante?: {
+    datosContribuyente?: unknown;
+    [key: string]: unknown;
+  };
+  /** Wire payload: direct access to datosContribuyente */
+  datosContribuyente?: unknown;
 }
 
 /* ============================================================
@@ -116,10 +139,17 @@ export interface Establishment {
 /** Response for the fiscal address / establishments lookup. */
 export interface EstablishmentLookupResponse {
   success: boolean;
+  message?: string;
   /** Returned when querying the fiscal address. */
   fiscalAddress?: Establishment[];
   /** Returned when querying annexed establishments. */
   establishments?: Establishment[];
+  /** Wire payload: direct access to domiciliofiscal */
+  domiciliofiscal?: unknown[];
+  /** Wire payload: direct access to establecimientosanexos */
+  establecimientosanexos?: unknown[];
+  /** Wire payload: direct access to establecimientos */
+  establecimientos?: unknown[];
 }
 
 /* ============================================================
@@ -135,13 +165,27 @@ export interface NaturalPersonData {
   address: string;
   phone: string;
   ubigeo: UbigeoInfo;
+
+  /** Wire alias: paternal surname */
+  apePaterno?: string;
+  /** Wire alias: maternal surname */
+  apeMaterno?: string;
+  /** Wire alias: given names */
+  nomPerNat?: string;
+  /** Wire alias: address */
+  desDir?: string;
+  /** Wire alias: phone */
+  numTel?: string;
 }
 
 /** Response for the DNI lookup. */
 export interface NaturalPersonLookupResponse {
   success: boolean;
+  message?: string;
   /** The person payload returned by the provider. */
   person: NaturalPersonData;
+  /** Wire payload: direct access to comprobante */
+  comprobante?: unknown;
 }
 
 /* ============================================================
